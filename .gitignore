@@ -3,3 +3,9 @@
 /.vs
 /FindNest/bin
 /FindNest/obj
+/VNPAY/obj
+/ImportRegion/bin
+/ImportRegion/obj
+/VNPAY/bin
+/SendEmail/obj
+/SendEmail/bin
