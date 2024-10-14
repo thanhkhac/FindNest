@@ -84,7 +84,7 @@ namespace FindNest.Areas.Identity.Pages.Account
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [StringLength(100, ErrorMessage = "{0} yêu cầu tối thiểu độ dài là {2} và tối đa là {1} ký tự", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
             public string Password { get; set; }
@@ -95,7 +95,7 @@ namespace FindNest.Areas.Identity.Pages.Account
             /// </summary>
             [DataType(DataType.Password)]
             [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            [Compare("Password", ErrorMessage = "Mật khẩu không khớp")]
             public string ConfirmPassword { get; set; }
         }
 
@@ -132,7 +132,7 @@ namespace FindNest.Areas.Identity.Pages.Account
                         protocol: Request.Scheme);
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        $"Xác nhận tài khoản tại <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>đây</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

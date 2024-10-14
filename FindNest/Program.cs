@@ -1,3 +1,4 @@
+using FindNest.Config;
 using FindNest.Data;
 using FindNest.Services;
 using Microsoft.AspNetCore.Identity;
@@ -32,7 +33,8 @@ namespace FindNest
                     options.Password.RequireNonAlphanumeric = false;
                     options.Password.RequiredLength = 8;
                 })
-                .AddEntityFrameworkStores<FindNestDbContext>();
+                .AddEntityFrameworkStores<FindNestDbContext>()
+                .AddErrorDescriber<CustomIdentityErrorDescriber>();
             builder.Services.AddRazorPages();
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 

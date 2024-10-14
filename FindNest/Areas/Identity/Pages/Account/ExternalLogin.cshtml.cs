@@ -96,6 +96,8 @@ namespace FindNest.Areas.Identity.Pages.Account
             return new ChallengeResult(provider, properties);
         }
 
+        //Hàm này chạy sau khi bên thứ 3 chuyển hướng trở về 
+        //Website -> Login -> Google -> OnGetCallBack
         public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
@@ -138,6 +140,7 @@ namespace FindNest.Areas.Identity.Pages.Account
             }
         }
 
+        //Hàm này chạy khi người dùng bấm đăng ký
         public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
