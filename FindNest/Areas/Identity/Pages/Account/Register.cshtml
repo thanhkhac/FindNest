@@ -6,8 +6,8 @@
 
 
 
-<div class="row">
-    <div class="col-md-6 mx-auto">
+<div class="row justify-content-center border border-1 rounded-3 p-4">
+    <div class="col-md-4">
         <h1>@ViewData["Title"]</h1>
         <section>
             <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
@@ -64,7 +64,9 @@
             }
         </section>
     </div>
-
+    <div class="col-md-4">
+        <img src="~/image/Login.jpg" alt="Girl in a jacket" class="w-100 d-none d-md-block">
+    </div>
 </div>
 
 @section Scripts {

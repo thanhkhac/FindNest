@@ -73,12 +73,80 @@ namespace FindNest.Areas.Identity.Pages.Account
                 await _emailSender.SendEmailAsync(
                     Input.Email,
                     "Reset Password",
-                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
+                    getHTMLEmail(HtmlEncoder.Default.Encode(callbackUrl)));
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }
 
             return Page();
+        }
+        
+         private string getHTMLEmail(string url)
+        {
+            var email = @"
+            <!DOCTYPE html>
+            <html lang=""vi"">
+            <head>
+                <meta charset=""UTF-8"">
+                <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                <title>Đặt lại mật khẩu</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: #f4f4f4;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        background-color: #ffffff;
+                        padding: 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    }
+                    h1 {
+                        color: #333333;
+                    }
+                    p {
+                        font-size: 16px;
+                        color: #666666;
+                        line-height: 1.6;
+                    }
+                    .btn {
+                        display: inline-block;
+                        padding: 10px 20px;
+                        margin-top: 20px;
+                        background-color: #007bff;
+                        color: #ffffff;
+                        text-decoration: none;
+                        border-radius: 5px;
+                    }
+                    .btn:hover {
+                        background-color: #0056b3;
+                    }
+                    .footer {
+                        text-align: center;
+                        margin-top: 20px;
+                        font-size: 12px;
+                        color: #999999;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class=""container"">
+                    <h1>Đặt lại mật khẩu của bạn</h1>
+                    <p>Xin chào,</p>
+                    <a href=" + url + @" class=""btn"" style=""color: white !important;"">Đặt lại mật khẩu</a>
+                    <p>Nếu bạn không đặt lại mật khẩu tài khoản này, vui lòng bỏ qua email này.</p>
+                    <p>Trân trọng,<br/>Đội ngũ FindNest</p>
+                </div>
+                <div class=""footer"">
+                    <p>Email này được gửi từ hệ thống, vui lòng không trả lời email này.</p>
+                </div>
+            </body>
+            </html>
+            ";
+            return email;
         }
     }
 }
