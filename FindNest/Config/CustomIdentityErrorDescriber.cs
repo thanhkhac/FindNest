@@ -8,10 +8,10 @@ namespace FindNest.Config
         {
             return new IdentityError { Code = nameof(DefaultError), Description = $"Có lỗi xảy ra." };
         }
-        public override IdentityError ConcurrencyFailure()
-        {
-            return new IdentityError { Code = nameof(ConcurrencyFailure), Description = "Optimistic concurrency failure, object has been modified." };
-        }
+        // public override IdentityError ConcurrencyFailure()
+        // {
+        //     return new IdentityError { Code = nameof(ConcurrencyFailure), Description = "Optimistic concurrency failure, object has been modified." };
+        // }
         public override IdentityError PasswordMismatch()
         {
             return new IdentityError { Code = nameof(PasswordMismatch), Description = "Sai mật khẩu." };
@@ -35,7 +35,7 @@ namespace FindNest.Config
         }
         public override IdentityError DuplicateUserName(string userName)
         {
-            return new IdentityError { Code = nameof(DuplicateUserName), Description = $"Tên người dùng '{userName}' đã tồn tại." };
+            return new IdentityError { Code = nameof(DuplicateUserName), Description = $"'{userName}' đã tồn tại." };
         }
         public override IdentityError DuplicateEmail(string email)
         {
