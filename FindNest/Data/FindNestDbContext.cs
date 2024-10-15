@@ -31,6 +31,18 @@ namespace FindNest.Data
         public DbSet<Utility> Utilities  { get; set; }
         public DbSet<Media> Media  { get; set; }
         public DbSet<RentPost> RentPosts  { get; set; }
+        public DbSet<RentCategory>RentCategories   { get; set; }
 
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<RentCategory>().HasData(
+                new RentCategory { Id = 1, Name = "Phòng trọ" },
+                new RentCategory { Id = 2, Name = "Căn hộ" },
+                new RentCategory { Id = 3, Name = "Nguyên Căn" }
+            );
+        }
     }
 }
