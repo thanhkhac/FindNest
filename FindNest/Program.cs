@@ -1,5 +1,6 @@
 using FindNest.Config;
 using FindNest.Data;
+using FindNest.Data.Models;
 using FindNest.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,7 @@ namespace FindNest
             builder.Services.AddScoped<IEmailSender, SendEmail>();
 
             //Cấu hình Identity
-            builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+            builder.Services.AddDefaultIdentity<User>(options =>
                 {
                     options.SignIn.RequireConfirmedAccount = true;
                     options.Password.RequireDigit = false;

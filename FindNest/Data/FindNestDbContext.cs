@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FindNest.Data
 {
-    public class FindNestDbContext : IdentityDbContext
+    public class FindNestDbContext : IdentityDbContext<User>
     {
         public FindNestDbContext(DbContextOptions<FindNestDbContext> options)
             : base(options)
