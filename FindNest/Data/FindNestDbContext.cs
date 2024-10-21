@@ -1,4 +1,5 @@
 ﻿using FindNest.Data.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -42,6 +43,11 @@ namespace FindNest.Data
                 new RentCategory { Id = 1, Name = "Phòng trọ" },
                 new RentCategory { Id = 2, Name = "Căn hộ" },
                 new RentCategory { Id = 3, Name = "Nguyên Căn" }
+            );
+            
+            modelBuilder.Entity<IdentityRole>().HasData(
+                new IdentityRole{Id = "Admin", Name = "Admin", NormalizedName = "ADMIN"},
+                new IdentityRole { Id = "User", Name = "User", NormalizedName = "USER" }
             );
         }
     }

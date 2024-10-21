@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.FileProviders;
 
 namespace FindNest
 {
@@ -38,7 +39,7 @@ namespace FindNest
                 .AddErrorDescriber<CustomIdentityErrorDescriber>();
             builder.Services.AddRazorPages();
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-
+            builder.Services.AddDirectoryBrowser();
             builder.Services.AddAuthentication().AddGoogle(opts =>
             {
                 opts.ClientId = builder.Configuration["Google:ClientId"];
@@ -56,7 +57,20 @@ namespace FindNest
                 app.UseHsts();
             }
 
+            var fileProvider = new PhysicalFileProvider(
+                Path.Combine(builder.Environment.ContentRootPath, "Upload"));
+            var requestPath = "/Upload";
             app.UseHttpsRedirection();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = fileProvider,
+                RequestPath = requestPath
+            });
+            app.UseDirectoryBrowser(new DirectoryBrowserOptions
+            {
+                FileProvider = fileProvider,
+                RequestPath = requestPath
+            });
             app.UseStaticFiles();
 
             app.UseRouting();

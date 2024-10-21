@@ -14,7 +14,7 @@ namespace FindNest.Data.Models
         [ForeignKey("RentCategory")]
         public int? RentCategoryId { get; set; }
         public long Price { get; set; }
-        public long Address { get; set; }
+        public string? Address { get; set; }
         public bool IsNegotiatedPrice { get; set; }
         public string? Thumbnail { get; set; }
         public bool IsHidden { get; set; }
