@@ -16,21 +16,57 @@ namespace FindNest.Pages.Post
     {
         private readonly FindNest.Data.FindNestDbContext _context;
         private readonly IRentPostRepository _rentPostRepository;
+        private readonly IRegionRepository _regionRepository;
 
         
-        public IndexModel(FindNest.Data.FindNestDbContext context, IRentPostRepository rentPostRepository)
+        public IndexModel(FindNest.Data.FindNestDbContext context, IRentPostRepository rentPostRepository, IRegionRepository regionRepository)
         {
             _context = context;
             _rentPostRepository = rentPostRepository;
+            _regionRepository = regionRepository;
         }
 
-        public RentPostSearchParams Params { get; set; }
+        [BindProperty(SupportsGet = true)]
+        public RentPostSearchParams Params { get; set; } = new RentPostSearchParams();
 
         public IList<RentPost> RentPost { get;set; } = default!;
-
-        public async Task OnGetAsync()
+        
+        public int TotalCount { get; set; }
+        public int PageCount { get; set; }
+        
+        public List<RentCategory> RentCategories;
+        public List<Region> CityRegions = new List<Region>();
+        public List<Region> DistrictRegions = new List<Region>();
+        public List<Region> WardRegions = new List<Region>();
+        public List<Region> SelectedRegions = new List<Region>();
+        public void Load()
         {
-            RentPost = _rentPostRepository.Search(Params).ToList();
+            RentCategories = _rentPostRepository.GetAllRentCategories().ToList();
+            CityRegions = _regionRepository.GetChildRegions(null);
+            if (Params.RegionId != null)
+            {
+                SelectedRegions = _regionRepository.GetParentRegionsRecursive((int)Params.RegionId);
+                var city = SelectedRegions.FirstOrDefault(x=>x.Level == 1);
+                var district = SelectedRegions.FirstOrDefault(x=>x.Level == 2);
+                var ward = SelectedRegions.FirstOrDefault(x=>x.Level == 3);
+                if (city != null)
+                {
+                    DistrictRegions = _regionRepository.GetChildRegions(city.Id);
+                }
+                if (district != null)
+                {
+                    WardRegions = _regionRepository.GetChildRegions(district.Id);
+                }
+            }
         }
+
+        public async Task<IActionResult> OnGetAsync()
+        {
+            Load();
+            RentPost = _rentPostRepository.Search(Params, out int count).ToList();
+            TotalCount = count;
+            PageCount = count/Params.PageSize;
+            return Page();
+        }        
     }
 }

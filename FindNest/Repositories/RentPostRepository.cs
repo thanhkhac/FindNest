@@ -14,47 +14,91 @@ namespace FindNest.Repositories
         // Task UpdateAsync(RentPost rentPost);
         // Task DeleteAsync(int id);
 
-        IEnumerable<RentPost> Search(RentPostSearchParams searchParams);
+        IEnumerable<RentPost> Search(RentPostSearchParams? searchParams, out int TotalCount);
         RentPost? GetById();
         void Add(RentPost rentPost);
         void Update(RentPost rentPost);
         void Delete(int id);
+
+        IEnumerable<RentCategory> GetAllRentCategories();
     }
 
     public class RentPostRepository : IRentPostRepository
     {
         private readonly FindNest.Data.FindNestDbContext _context;
+        private readonly IRegionRepository _regionRepository;
 
-        public RentPostRepository(FindNestDbContext context)
+        public RentPostRepository(FindNestDbContext context, IRegionRepository regionRepository)
         {
             _context = context;
+            _regionRepository = regionRepository;
         }
 
 
-        public IEnumerable<RentPost> Search(RentPostSearchParams searchParams)
+        public IEnumerable<RentPost> Search(RentPostSearchParams? searchParams, out int TotalCount)
         {
-            var query = _context.RentPosts.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(searchParams.Title)) { query = query.Where(x => x.Title.Contains(searchParams.Title.Trim())); }
-            if (searchParams.IsNegotiatedPrice) { query = query.Where(x => x.IsNegotiatedPrice == true); }
-            if (searchParams.FromPrice != null) { query = query.Where(x => x.Price >= searchParams.FromPrice); }
-            if (searchParams.ToPrice != null) { query = query.Where(x => x.Price <= searchParams.ToPrice); }
-            if (!string.IsNullOrWhiteSpace(searchParams.Address)) { query = query.Where(x => x.Address.Contains(searchParams.Address.Trim())); }
-            if (searchParams.RegionId != null)
+            var query = _context.RentPosts.Include(x => x.RentPostRooms).OrderByDescending(x => x.CreatedAt).AsQueryable();
+            if (searchParams != null)
             {
-                int regionId = (int)searchParams.RegionId;
-                var childRegions = GetChildRegions(regionId).Select(x => x.Id).ToList();
-                query = query.Where(x => childRegions.Contains((int)x.RegionId));
+                Console.WriteLine(searchParams.ToString());
+                if (!string.IsNullOrWhiteSpace(searchParams.Title)) { query = query.Where(x => x.Title.Contains(searchParams.Title.Trim())); }
+
+                if (searchParams.IsPriceMinMaxFilter && searchParams.IsNegotiatedPrice)
+                {
+                    query = query.Where(x =>
+                        (x.IsNegotiatedPrice == true) ||
+                        (((searchParams.MinPrice == null || x.Price >= searchParams.MinPrice) &&
+                          (searchParams.MaxPrice == null || x.Price <= searchParams.MaxPrice)))
+                    );
+                }
+                if (searchParams.IsNegotiatedPrice && !searchParams.IsPriceMinMaxFilter) { query = query.Where(x => (x.IsNegotiatedPrice == true)); }
+                else if (!searchParams.IsNegotiatedPrice && searchParams.IsPriceMinMaxFilter)
+                {
+                    query = query.Where(x =>
+                        (x.IsNegotiatedPrice == false) &&
+                        (((searchParams.MinPrice == null || x.Price >= searchParams.MinPrice) &&
+                          (searchParams.MaxPrice == null || x.Price <= searchParams.MaxPrice)))
+                    );
+                }
+
+                if (!string.IsNullOrWhiteSpace(searchParams.Address)) { query = query.Where(x => x.Address.Contains(searchParams.Address.Trim())); }
+                if (searchParams.RentCategoryIds != null)
+                {
+                    query = query.Where(x =>
+                        x.RentCategoryId != null &&
+                        (searchParams.RentCategoryIds.Contains((int)x.RentCategoryId) || searchParams.RentCategoryIds.Count == 0));
+                }
+
+                if (searchParams.MaxArea != null)
+                {
+                    query = query.Where(x => x.Area <= searchParams.MaxArea);
+                }
+                if (searchParams.MinArea != null)
+                {
+                    query = query.Where(x => x.Area >= searchParams.MinArea);
+                }
+                if (searchParams.RegionId != null)
+                {
+                    int regionId = (int)searchParams.RegionId;
+                    var childRegions = _regionRepository.GetChildRegionsRecursive(regionId).Select(x => x.Id).ToList();
+                    query = query.Where(x => childRegions.Contains((int)x.RegionId));
+                }
             }
-            return query.ToList();
+            TotalCount = query.Count();
+            // Console.WriteLine(GetAddress(32867));
+            // Console.WriteLine("HEllo");
+            var result = query.Skip(searchParams.CurrentPage - 1).Take(searchParams.PageSize).ToList();
+            foreach (var rentPost in result)
+            {
+                if (rentPost.RegionId != null) { rentPost.RegionAddress = _regionRepository.GetAddress((int)rentPost.RegionId); }
+            }
+            return result;
         }
 
-        public List<Region> GetChildRegions(int? parentId)
+
+        public IEnumerable<RentCategory> GetAllRentCategories()
         {
-            var IdParam = new SqlParameter("@Id", 1);
-            var regions = _context.Regions
-                .FromSqlRaw("EXEC GetChildRegions @Id", IdParam)
-                .ToList();
-            return regions;
+            return _context.RentCategories.ToList();
         }
 
 

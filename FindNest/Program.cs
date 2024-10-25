@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.OpenApi.Models;
 
 namespace FindNest
 {
@@ -22,8 +23,20 @@ namespace FindNest
             builder.Services.AddDbContext<FindNestDbContext>(options =>
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
             builder.Services.AddScoped<IEmailSender, SendEmail>();
+            
+            builder.Services.ConfigServices();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                            .AllowAnyMethod()
+                            .AllowAnyHeader();
+                    });
+            });
+
 
             //Cấu hình Identity
             builder.Services.AddDefaultIdentity<User>(options =>
@@ -34,7 +47,7 @@ namespace FindNest
                     options.Password.RequireUppercase = false;
                     options.Password.RequireNonAlphanumeric = false;
                     options.Password.RequiredLength = 8;
-                })
+                }).AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<FindNestDbContext>()
                 .AddErrorDescriber<CustomIdentityErrorDescriber>();
             builder.Services.AddRazorPages();
@@ -45,9 +58,27 @@ namespace FindNest
                 opts.ClientId = builder.Configuration["Google:ClientId"];
                 opts.ClientSecret = builder.Configuration["Google:ClientSecret"];
             });
+            
+            //Cấu hình API
+            builder.Services.AddControllers();
+            
+
+            builder.Services.AddEndpointsApiExplorer(); // Tự động khám phá API endpoints
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "FindNest API",
+                    Version = "v1",
+                    Description = "API for FindNest project",
+                });
+            });
+
 
             var app = builder.Build();
 
+
+            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment()) { app.UseMigrationsEndPoint(); }
             else
@@ -56,7 +87,8 @@ namespace FindNest
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            
+            app.UseCors("AllowAllOrigins");
             var fileProvider = new PhysicalFileProvider(
                 Path.Combine(builder.Environment.ContentRootPath, "Upload"));
             var requestPath = "/Upload";
@@ -78,7 +110,13 @@ namespace FindNest
             app.UseAuthorization();
 
             app.MapRazorPages();
-
+            app.MapControllers();
+            
+            app.UseSwagger();
+            app.UseSwaggerUI(c => 
+            {
+                // c.SwaggerEndpoint("/swagger/v1/swagger.json", "FindNest API v1");
+            });
             app.Run();
         }
     }
