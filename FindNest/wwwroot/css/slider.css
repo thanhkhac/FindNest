@@ -1,6 +1,7 @@
 ﻿/* Tùy chỉnh giao diện của thanh kéo */
 #slider {
     border: none;
+    background: #bfd1ec;
 }
 
 /* Thanh kéo chính */
@@ -10,25 +11,26 @@
 
 /* Thanh kéo đã kết nối */
 .noUi-connect {
-    background: #1DBABF; /* Màu của thanh kéo đã kết nối */
+    background: #dc3545; /* Màu của thanh kéo đã kết nối */
 }
 
 /* Thang số trên tay cầm */
 .noUi-handle {
-    background: #1DBABF;
+    background: #dc3545;
     box-shadow: none;
-    border: none;
+    border: 2px solid #bfd1ec;
 }
 
-.noUi-handle::before{
-    content: none;
-}
-.noUi-handle::after{
-    content: none;
-}
+/*.noUi-handle::before{*/
+/*    content: none;*/
+/*}*/
+/*.noUi-handle::after{*/
+/*    content: none;*/
+/*}*/
 
 /* Thay đổi màu của tay cầm khi hover */
 .noUi-handle:hover {
-    background: #94fbff; /* Màu nền của tay cầm khi hover */
-    border: 2px solid #ffffff; /* Màu viền của tay cầm khi hover */
+    background: #dc3545; /* Màu nền của tay cầm khi hover */
+    border: 2px solid black; /* Màu viền của tay cầm khi hover */
 }
+

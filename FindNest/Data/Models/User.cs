@@ -9,5 +9,8 @@ namespace FindNest.Data.Models
         public string? FullName { get; set; }
         
         public long Balance { get; set; }
+        
+        [StringLength(25)]
+        public string ContactPhoneNumber { get; set; }
     }
 }

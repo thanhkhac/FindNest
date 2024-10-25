@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - FindNest</title>
     <partial name="_HeadImport"/>
+    
 </head>
 <body>
     <header>
@@ -32,8 +33,13 @@
             </div>
         </nav>
     </header>
+@if(ViewData["Title"] == "Home page")
+    {
 
-    <div class="container">
+    }
+
+    
+    <div class="">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>

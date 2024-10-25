@@ -35,5 +35,11 @@ a{
 }
 
 .txt-red-hover :hover{
-  color: #ff253a;
+  color: #dc3545;
 }
+
+input[type=checkbox]:checked {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+

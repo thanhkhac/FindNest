@@ -1,9 +1,208 @@
 ﻿@page
-@model IndexModel
+@model FindNest.Pages.Post.IndexModel
 @{
     ViewData["Title"] = "Home page";
+    Layout = "Shared/_HomepageLayout";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+
+<div class="row justify-content-center">
+    <div class="col-12 row justify-content-center p-0 mt-2">
+        <div class="col-lg-10 p-0">
+            <div class="bg-dark bg-opacity-50 p-2 rounded">
+                <div class="d-flex justify-content-evenly">
+                    <button class="btn bg-light flex-fill me-1" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                        <i class="fa-solid fa-house"></i> Chọn loại nhà
+                    </button>
+                    <button class="btn bg-light flex-fill me-1" data-bs-toggle="modal" data-bs-target="#regionModal">
+                        <i class="fa-solid fa-location-dot"></i>
+                        @if (Model.SelectedRegions.Count > 0)
+                        {
+                            <span id="regionSelectLabel">
+                                @Model.SelectedRegions.Last().Name
+                            </span>
+                        }
+                        else
+                        {
+                            <span id="regionSelectLabel">
+                                Chọn khu vực
+                            </span>
+                        }
+                    </button>
+                    <button class="btn bg-light flex-fill me-1" data-bs-toggle="modal" data-bs-target="#priceModal">
+                        <i class="fa-solid fa-money-check-dollar"></i> <span id="priceLabel">Chọn giá</span>
+                    </button>
+                    <button class="btn bg-light flex-fill me-1" data-bs-toggle="modal" data-bs-target="#areaModal">
+                        <i class="fa-solid fa-maximize"></i>Chọn diện tích
+                    </button>
+                    <button form="searchForm" class="btn btn-danger flex-fill me-1 ">Tìm kiếm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form asp-page="/Post/Index" method="get" id="searchForm">
+        <div class="modal fade" id="priceModal" tabindex="-1" aria-labelledby="priceModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="priceModalLabel">Nhập khoảng giá</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body ">
+                        <div class="form-check mt-4 ms-5">
+                            <input class="form-check-input" asp-for="Params.IsPriceMinMaxFilter" type="checkbox">
+                            <label class="form-check-label">Theo khoảng giá</label>
+                        </div>
+                        <div class="value-display text-center"><span id="minPriceValue">0 triệu</span> - <span id="maxPriceValue">15 triệu</span></div>
+                        <div id="slider" class="w-75 mx-auto"></div>
+                        <div class="form-check mt-4 ms-5">
+                            <input class="form-check-input" asp-for="Params.IsNegotiatedPrice" type="checkbox">
+                            <label class="form-check-label">Giá thỏa thuận</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        @* <button type="button" class="btn btn-primary" id="savePrice">Lưu</button> *@
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="areaModal" tabindex="-1" aria-labelledby="areaModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="areaModalLabel">Nhập khoảng diện tích</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Diện tích tối thiểu</label>
+                            <input type="number" asp-for="Params.MinArea" class="form-control" placeholder="Nhập diện tích tối thiểu">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Diện tích tối đa</label>
+                            <input type="number" asp-for="Params.MaxArea" class="form-control" placeholder="Nhập diện tích tối đa">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        @* <button type="button" class="btn btn-primary" id="saveArea">Lưu</button> *@
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="regionModal" tabindex="-1" aria-labelledby="regionModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="regionModalLabel">Chọn khu vực</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-flex">
+                            <select class="form-select" id="citySelect">
+                                <option value="" disabled selected>Chọn thành phố</option>
+                                <option value="">Tất cả</option>
+                                @foreach (var region in @Model.CityRegions)
+                                {
+                                    <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.Name</option>
+                                }
+                            </select>
+                            <select class="form-select" id="districtSelect">
+                                <option value="" disabled selected>Chọn huyện</option>
+                                <option value="">Tất cả</option>
+                                @foreach (var region in @Model.DistrictRegions)
+                                {
+                                    <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.Name</option>
+                                }
+                            </select>
+                            <select class="form-select" id="wardSelect">
+                                <option value="" disabled selected>Chọn phường xã</option>
+                                <option value="">Tất cả</option>
+                                @foreach (var region in @Model.WardRegions)
+                                {
+                                    <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        @* <button type="button" class="btn btn-primary" id="saveRegion">Lưu</button> *@
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="categoryModalLabel">Chọn loại nhà</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @foreach (var category in Model.RentCategories)
+                        {
+                            <div>
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       value="@category.Id.ToString()"
+                                       name="@nameof(Model.Params).@nameof(Model.Params.RentCategoryIds)"
+                                       checked=@(Model.Params.RentCategoryIds.Contains(category.Id) || Model.Params.RentCategoryIds.Count == 0)/>
+                                @category.Name
+                            </div>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        @* <button type="button" class="btn btn-primary" id="saveCategory">Lưu</button> *@
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <input id="regionId" type="hidden"
+                   name="@nameof(Model.Params).@nameof(@Model.Params.RegionId)"
+                   value="@(Model.SelectedRegions.Count > 0 ? Model.SelectedRegions.Last().Id.ToString() : "")">
+            <input type="hidden" id="minPrice" name="@nameof(Model.Params).@nameof(Model.Params.MinPrice)">
+            <input type="hidden" id="maxPrice" name="@nameof(Model.Params).@nameof(Model.Params.MaxPrice)">
+        </div>
+    </form>
 </div>
+
+<div id="carouselExampleSlidesOnly" class="carousel slide mt-4" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img src="image/Slide.png" class="d-block w-100" alt="...">
+        </div>
+    </div>
+</div>
+
+
+<div class="row justify-content-center gap-5 mt-4">
+    <div class="col-md-3 d-flex d-md-block col-sm-7 border p-5 rounded rounded-3 shadow-lg">
+        <div>
+            <img class="w-100 p-4" src="image/Find.png" alt="">
+        </div>
+        <div>
+            <div class="text-center h2 fw-bold">Tìm nhà</div>
+            <div class="text-center">Khám phá danh sách phòng trọ và nhà ở phù hợp nhất với nhu cầu của bạn. Sử dụng công cụ tìm kiếm tối ưu để lọc theo vị trí, giá cả và tiện ích</div>
+        </div>
+    </div>
+    <div class="col-md-3 d-flex d-md-block col-sm-7 border p-5 rounded rounded-3 shadow-lg">
+        <div>
+            <img class="w-100 p-4" src="image/Home.png" alt="">
+        </div>
+        <div>
+            <div class="text-center h2 fw-bold">Đăng tin</div>
+            <div class="text-center">Đăng tải thông tin phòng trọ nhanh chóng và dễ dàng, giúp kết nối chủ nhà và người thuê một cách hiệu quả. Đảm bảo thông tin rõ ràng và thu hút nhiều người xem</div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/selectRegion.js"></script>
+<script src="/js/sliderPrice.js"></script>
