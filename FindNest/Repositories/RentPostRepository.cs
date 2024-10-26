@@ -113,7 +113,7 @@ namespace FindNest.Repositories
                 select new RentPost
                 {
                     CreatedAt = x.RentPost.CreatedAt,
-                    UpdateAt = x.RentPost.UpdateAt,
+                    UpdatedAt = x.RentPost.UpdatedAt,
                     CreatedBy = x.RentPost.CreatedBy,
                     IsDeleted = x.RentPost.IsDeleted,
                     User = x.User.FirstOrDefault(), // Getting the user from the group

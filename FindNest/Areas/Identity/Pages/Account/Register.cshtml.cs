@@ -56,12 +56,12 @@ namespace FindNest.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required]
+            [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
             [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
             [Display(Name = "Email")]
             public string Email { get; set; }
 
-            [Required]
+            [Required(ErrorMessage = "Vui lòng nhập họ và tên")]
             [Display(Name = "FullName")]
             [StringLength(100, ErrorMessage = "Họ và tên không được bỏ trống", MinimumLength = 1)]
             [MaxLength(100, ErrorMessage = "Không được vượt quá 100 ký tự")]
@@ -96,8 +96,9 @@ namespace FindNest.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                user.FullName = Input.FullName;
                 var result = await _userManager.CreateAsync(user, Input.Password);
-
+                await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");

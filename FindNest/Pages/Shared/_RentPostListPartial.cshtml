@@ -3,9 +3,9 @@
 @* @{ int index = 1; } *@
 @foreach (var item in Model)
 {
-    <div class="col-12 row m-0 rounded-3 overflow-hidden p-0 my-1 border shadow-sm">
-        <div class="col-5 p-0">
-            <img class="w-100" src="@Html.DisplayFor(modelItem => item.Thumbnail)" alt="">
+    <div class="col-12 row m-0 rounded-3 overflow-hidden p-0 my-1 border shadow-sm" style="height: 200px">
+        <div class="col-5 p-0 h-100">
+            <img style="object-fit: cover" class="w-100 h-100" src="@Html.DisplayFor(modelItem => item.Thumbnail)" alt="">
         </div>
         <div class="col-7 position-relative p-0 d-flex flex-column justify-content-between">
             <div class="px-2">
@@ -41,7 +41,10 @@
                         </div>
                         <div class="ms-2 align-content-center">
                             <div>
-                                @item.User.FullName
+                                @if(item.User!= null)
+                                {
+                                    @item.User.FullName
+                                }
                             </div>
                             <div class="h6 text-secondary mb-0">@Ultilities.GetRelativeTime(item.CreatedAt)</div>
                         </div>
