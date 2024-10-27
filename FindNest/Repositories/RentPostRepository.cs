@@ -15,7 +15,7 @@ namespace FindNest.Repositories
         // Task DeleteAsync(int id);
 
         IEnumerable<RentPost> Search(RentPostSearchParams? searchParams, out int TotalCount);
-        RentPost? GetById();
+        RentPost? GetById(int id);
         void Add(RentPost rentPost);
         void Update(RentPost rentPost);
         void Delete(int id);
@@ -38,9 +38,9 @@ namespace FindNest.Repositories
         public IEnumerable<RentPost> Search(RentPostSearchParams? searchParams, out int TotalCount)
         {
             // Join with Users from the start
-            var query = from rp in _context.RentPosts.Include(x => x.RentPostRooms)
-                join u in _context.Users on rp.CreatedBy equals u.Id into userGroup
-                select new { RentPost = rp, User = userGroup.DefaultIfEmpty() };
+var query = from rp in _context.RentPosts.Include(x => x.RentPostRooms)
+            join u in _context.Users on rp.CreatedBy equals u.Id
+            select new { RentPost = rp, User = u };
 
             // Apply ordering
             query = query.OrderByDescending(x => x.RentPost.CreatedAt).AsQueryable();
@@ -116,7 +116,7 @@ namespace FindNest.Repositories
                     UpdatedAt = x.RentPost.UpdatedAt,
                     CreatedBy = x.RentPost.CreatedBy,
                     IsDeleted = x.RentPost.IsDeleted,
-                    User = x.User.FirstOrDefault(), // Getting the user from the group
+                    User = x.User, 
                     Id = x.RentPost.Id,
                     Title = x.RentPost.Title,
                     RegionId = x.RentPost.RegionId,
@@ -144,9 +144,42 @@ namespace FindNest.Repositories
         }
 
 
-        public RentPost? GetById()
+        public RentPost? GetById(int id)
         {
-            throw new NotImplementedException();
+            var query =
+                from rp in _context.RentPosts
+                    .Include(x => x.Mediae)
+                    .Include(x => x.RentPostRooms)
+                    .Include(x=>x.RentCategory)
+                join u in _context.Users on rp.CreatedBy equals u.Id into userGroup
+                select new { RentPost = rp, User = userGroup.DefaultIfEmpty() };
+            var x = query.FirstOrDefault(x => x.RentPost.Id == id);
+            var rentPost = new RentPost
+            {
+                CreatedAt = x.RentPost.CreatedAt,
+                UpdatedAt = x.RentPost.UpdatedAt,
+                CreatedBy = x.RentPost.CreatedBy,
+                IsDeleted = x.RentPost.IsDeleted,
+                User = x.User.FirstOrDefault(), // Getting the user from the group
+                Id = x.RentPost.Id,
+                Title = x.RentPost.Title,
+                RegionId = x.RentPost.RegionId,
+                RentCategoryId = x.RentPost.RentCategoryId,
+                Price = x.RentPost.Price,
+                Area = x.RentPost.Area,
+                Address = x.RentPost.Address,
+                IsNegotiatedPrice = x.RentPost.IsNegotiatedPrice,
+                Thumbnail = x.RentPost.Thumbnail,
+                IsHidden = x.RentPost.IsHidden,
+                Region = x.RentPost.Region,
+                RentCategory = x.RentPost.RentCategory,
+                Utilities = x.RentPost.Utilities,
+                RentPostRooms = x.RentPost.RentPostRooms,
+                RegionAddress = x.RentPost.RegionId != null ? _regionRepository.GetAddress((int)x.RentPost.RegionId) : null,
+                Mediae = x.RentPost.Mediae,
+                Description = x.RentPost.Description
+            };
+            return rentPost;
         }
 
         public void Add(RentPost rentPost)

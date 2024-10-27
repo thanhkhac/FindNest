@@ -25,6 +25,9 @@ namespace FindNest.Data.Models
 
         public bool IsNegotiatedPrice { get; set; }
         public string? Thumbnail { get; set; }
+        
+        public string? Description { get; set; }
+        
         public bool IsHidden { get; set; }
         public virtual Region? Region { get; set; }
         public virtual RentCategory? RentCategory { get; set; }
@@ -34,11 +37,13 @@ namespace FindNest.Data.Models
         public virtual ICollection<RentPostRoom> RentPostRooms { get; set; }
 
         public virtual ICollection<Media> Mediae { get; set; }
-
+        
+        
         [NotMapped]
         public string RegionAddress { get; set; }
         [NotMapped]
         public int BedRoomCount => RentPostRooms != null ? RentPostRooms.Count(x => x.RoomId == 1) : 0;
+        [NotMapped]
         public int BathRoomCount => RentPostRooms != null ? RentPostRooms.Count(x => x.RoomId == 3) : 0;
 
     }

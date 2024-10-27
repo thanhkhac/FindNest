@@ -13,6 +13,8 @@ using FindNest.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace FindNest.Pages.Post
 {
@@ -33,7 +35,7 @@ namespace FindNest.Pages.Post
 
         [DisplayName("Giá")]
         [Range(0, 10_000_000_000, ErrorMessage = "Giá tiền không hợp lệ")]
-        [Required(ErrorMessage = "Vui lòng nhập giá phòng", AllowEmptyStrings = false)]
+        // [Required(ErrorMessage = "Vui lòng nhập giá phòng", AllowEmptyStrings = false)]
         public long? Price { get; set; }
 
         [DisplayName("Diện tích")]
@@ -55,6 +57,20 @@ namespace FindNest.Pages.Post
         public List<IFormFile>? Images { get; set; } = new List<IFormFile>();
 
         public List<int> FileIndex { get; set; }
+
+        [Range(0, int.MaxValue, ErrorMessage = "Số phòng tắm, nhà vệ sinh không hợp lệ")]
+        [DisplayName("Số phòng tắm, vệ sinh")]
+        [Required(ErrorMessage = "Vui lòng nhập số phòng tắm, nhà vệ sinh")]
+        public int BathroomQuantity { get; set; }
+        
+        [Range(0, int.MaxValue, ErrorMessage = "Số phòng ngủ không hợp lệ")]
+        [DisplayName("Số phòng ngủ")]
+        [Required(ErrorMessage = "Vui lòng nhập số phòng ngủ")]
+        public int BedroomQuantity { get; set; }
+        
+        [MaxLength(10_000)]
+        [DisplayName("Mô tả")]
+        public string? Description { get; set; }
     }
 
     [Authorize]
@@ -71,7 +87,8 @@ namespace FindNest.Pages.Post
         public List<Region> WardRegions = new List<Region>();
         public List<Region> SelectedRegions = new List<Region>();
 
-        public CreateModel(FindNest.Data.FindNestDbContext context, IRentPostRepository rentPostRepository, IRegionRepository regionRepository, UserManager<User> userManager)
+        public CreateModel(FindNest.Data.FindNestDbContext context, IRentPostRepository rentPostRepository, IRegionRepository regionRepository,
+            UserManager<User> userManager)
         {
             _context = context;
             _rentPostRepository = rentPostRepository;
@@ -120,7 +137,22 @@ namespace FindNest.Pages.Post
                     // Tạo GUID mới và thêm phần mở rộng tệp
                     var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}"; // Thêm phần mở rộng từ file gốc
                     var path = Path.Combine(Directory.GetCurrentDirectory(), "Upload", fileName);
-                    using (var stream = new FileStream(path, FileMode.Create)) { await file.CopyToAsync(stream); }
+            
+                    // Sử dụng ImageSharp để xử lý hình ảnh
+                    using (var image = await Image.LoadAsync(file.OpenReadStream()))
+                    {
+                        // Lưu hình ảnh với chất lượng giảm
+                        var quality = 75; // Chất lượng hình ảnh từ 0-100 (75% là một điểm tốt để giảm dung lượng)
+
+                        // Lưu hình ảnh dưới định dạng JPEG hoặc WEBP để giảm dung lượng
+                        var encoder = new JpegEncoder
+                        {
+                            Quality = quality // Chất lượng ảnh
+                        };
+
+                        await image.SaveAsync(path, encoder); // Lưu với encoder đã định nghĩa
+                    }
+
                     listPaths.Add(Path.Combine("/Upload", fileName));
                 }
             }

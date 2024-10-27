@@ -1,0 +1,120 @@
+@page
+@model FindNest.Pages.Post.ListModel
+
+@{
+    ViewData["Title"] = "List";
+}
+
+<h1>List</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].Area)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].Address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].IsNegotiatedPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].Thumbnail)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].IsHidden)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].Region)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].RentCategory)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].CreatedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].UpdatedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].CreatedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].UpdatedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentPost[0].IsDeleted)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.RentPost) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Price)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Area)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsNegotiatedPrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Thumbnail)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsHidden)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Region.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RentCategory.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UpdatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedBy)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UpdatedBy)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsDeleted)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

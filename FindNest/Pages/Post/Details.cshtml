@@ -1,0 +1,110 @@
+@page
+@using Ultilities
+@model FindNest.Pages.Post.DetailsModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="row justify-content-center">
+    <div class="col-8 p-0">
+        @if (@Model.RentPost.Mediae != null && @Model.RentPost.Mediae.Count > 0)
+        {
+            <div>
+                <div id="carouselExampleIndicators" style="height: 400px" class="carousel slide ">
+                    @* <div class="carousel-indicators"> *@
+                    @*     @for (int i = 0; i < Model.RentPost.Mediae.Count; i++) *@
+                    @*     { *@
+                    @*         <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="true" aria-label="Slide @i"></button> *@
+                    @*     } *@
+                    @* </div> *@
+                    <div class="carousel-inner h-100 bg-black rounded-3">
+                        @{ bool isFirst = true; }
+                        @foreach (var item in @Model.RentPost.Mediae)
+                        {
+                            <div class="carousel-item @(isFirst ? "active" : "") h-100">
+                                <img style="object-fit: contain" src="@item.Path" class="d-block w-100 h-100" alt="...">
+                            </div>
+                            isFirst = false;
+                        }
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+                <div class="row m-0 mt-2 flex-nowrap overflow-scroll mx-auto @(Model.RentPost.Mediae.Count < 6 ? " justify-content-center" : "")" style="height: 100px">
+                    @for (int i = 0; i < Model.RentPost.Mediae.Count; i++)
+                    {
+                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@i"
+                                class="@(i == 0 ? "active" : "") col-2 btn border p-0 h-100"
+                                aria-current="true" aria-label="Slide @i">
+                            <img src="@Model.RentPost.Mediae.ElementAt(i).Path" class="w-100 h-100 bg-black rounded-3" style="object-fit: contain" alt="">
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+        <div class="text-truncate-container">
+            <h3 class="h3 fw-bold">@Model.RentPost.Title</h3>
+        </div>
+        <div>
+            <h6><i class="fa-solid fa-location-dot"></i> Địa chỉ: @Model.RentPost.RegionAddress</h6>
+            <h6><i class="fa-solid fa-location-dot"></i> Địa chỉ cụ thể: @Model.RentPost.Address</h6>
+            <div class="d-flex text-danger fs-5 fw-bold border-top border-bottom py-3 my-2">
+                <div class="me-5">@Model.RentPost.RentCategory?.Name</div>
+                <div class="me-5">
+                    <i class="fa-solid fa-money-check-dollar"></i> @(Model.RentPost.IsNegotiatedPrice ? "Thỏa thuận" : Ultilities.FormatCurrency(Model.RentPost.Price) + "/Tháng")
+                </div>
+                <div class=""><i class="fa-solid fa-maximize"></i> @Model.RentPost.Area m<sup>2</sup></div>
+            </div>
+            <div class="">
+                <p>
+                    <i class="fa-solid fa-bed"></i> @Model.RentPost.BedRoomCount phòng ngủ
+                </p>
+                <p>
+                    <i class="fa-solid fa-bed"></i> @Model.RentPost.BedRoomCount phòng tắm, nhà vệ sinh
+                </p>
+            </div>
+            <div>
+                <h5 class="fw-bold">Thông tin mô tả</h5>
+                <div style="white-space: pre-line;">
+                    @Html.Raw(@Model.RentPost.Description?.Trim())
+                </div>
+            </div>
+            <div class="mt-4">
+                <h5 class="fw-bold">Thông tin</h5>
+                <table class="table">
+                    <tr>
+                        <th>Diện tích</th>
+                        <td>@Model.RentPost?.Area m<sup>2</sup></td>
+                        <th>Mức giá</th>
+                        <td>@Model.RentPost?.Price VND</td>
+                    </tr>
+                    <tr>
+                        <th>Số phòng ngủ</th>
+                        <td>@Model.RentPost?.BedRoomCount</td>
+                        <th>Số toilet</th>
+                        <td>@Model.RentPost?.BathRoomCount</td>
+                    </tr>
+                    <tr>
+                        <th>Địa chỉ</th>
+                        <td colspan="3">@Model.RentPost?.RegionAddress</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-2">
+    </div>
+    <div class="col-8 m-0 p-0">
+        <h3>Trong khu vực</h3>
+        <partial name="Shared/_RentPostListPartial" model="Model.RentPostsInRegion"/>
+    </div>
+    <div class="col-2">
+    </div>
+</div>
