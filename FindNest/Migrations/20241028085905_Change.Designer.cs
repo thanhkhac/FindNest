@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FindNest.Migrations
 {
     [DbContext(typeof(FindNestDbContext))]
-    [Migration("20241022043347_Remove area")]
-    partial class Removearea
+    [Migration("20241028085905_Change")]
+    partial class Change
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,24 @@ namespace FindNest.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("FindNest.Data.Models.Like", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("RentPostId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LikedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserId", "RentPostId");
+
+                    b.HasIndex("RentPostId");
+
+                    b.ToTable("Likes");
+                });
+
             modelBuilder.Entity("FindNest.Data.Models.Media", b =>
                 {
                     b.Property<int>("Id")
@@ -33,18 +51,12 @@ namespace FindNest.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("MediaType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Order")
+                        .HasColumnType("int");
 
                     b.Property<string>("Path")
                         .IsRequired()
@@ -52,9 +64,6 @@ namespace FindNest.Migrations
 
                     b.Property<int?>("RentPostId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdateAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -85,12 +94,28 @@ namespace FindNest.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
+                    b.Property<string>("CodeName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("EnglishFullName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("EnglishName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("FullName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int?>("ParentId")
                         .HasColumnType("int");
@@ -141,10 +166,19 @@ namespace FindNest.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Area")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("DeleteBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
@@ -171,16 +205,76 @@ namespace FindNest.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdateAt")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("RegionId");
 
                     b.HasIndex("RentCategoryId");
 
                     b.ToTable("RentPosts");
+                });
+
+            modelBuilder.Entity("FindNest.Data.Models.RentPostRoom", b =>
+                {
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int")
+                        .HasColumnOrder(0);
+
+                    b.Property<int>("RentPostId")
+                        .HasColumnType("int")
+                        .HasColumnOrder(1);
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoomId", "RentPostId");
+
+                    b.HasIndex("RentPostId");
+
+                    b.ToTable("RentPostRooms");
+                });
+
+            modelBuilder.Entity("FindNest.Data.Models.Room", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Rooms");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Phòng ngủ"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Phòng khách"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Nhà vệ sinh"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Nhà bếp riêng"
+                        });
                 });
 
             modelBuilder.Entity("FindNest.Data.Models.User", b =>
@@ -197,6 +291,10 @@ namespace FindNest.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContactPhoneNumber")
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -253,31 +351,6 @@ namespace FindNest.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("FindNest.Data.Models.Utility", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdateAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Utilities");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -431,25 +504,29 @@ namespace FindNest.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("RentPostUtility", b =>
+            modelBuilder.Entity("FindNest.Data.Models.Like", b =>
                 {
-                    b.Property<int>("RentPostsId")
-                        .HasColumnType("int");
+                    b.HasOne("FindNest.Data.Models.RentPost", "RentPost")
+                        .WithMany()
+                        .HasForeignKey("RentPostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<int>("UtilitiesId")
-                        .HasColumnType("int");
+                    b.HasOne("FindNest.Data.Models.User", "User")
+                        .WithMany("Likes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasKey("RentPostsId", "UtilitiesId");
+                    b.Navigation("RentPost");
 
-                    b.HasIndex("UtilitiesId");
-
-                    b.ToTable("RentPostUtility");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("FindNest.Data.Models.Media", b =>
                 {
                     b.HasOne("FindNest.Data.Models.RentPost", "RentPost")
-                        .WithMany()
+                        .WithMany("Mediae")
                         .HasForeignKey("RentPostId");
 
                     b.Navigation("RentPost");
@@ -457,6 +534,10 @@ namespace FindNest.Migrations
 
             modelBuilder.Entity("FindNest.Data.Models.RentPost", b =>
                 {
+                    b.HasOne("FindNest.Data.Models.User", "CreatedUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy");
+
                     b.HasOne("FindNest.Data.Models.Region", "Region")
                         .WithMany()
                         .HasForeignKey("RegionId");
@@ -465,9 +546,30 @@ namespace FindNest.Migrations
                         .WithMany()
                         .HasForeignKey("RentCategoryId");
 
+                    b.Navigation("CreatedUser");
+
                     b.Navigation("Region");
 
                     b.Navigation("RentCategory");
+                });
+
+            modelBuilder.Entity("FindNest.Data.Models.RentPostRoom", b =>
+                {
+                    b.HasOne("FindNest.Data.Models.RentPost", "RentPost")
+                        .WithMany("RentPostRooms")
+                        .HasForeignKey("RentPostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FindNest.Data.Models.Room", "Room")
+                        .WithMany("RentPostRooms")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RentPost");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -521,19 +623,21 @@ namespace FindNest.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RentPostUtility", b =>
+            modelBuilder.Entity("FindNest.Data.Models.RentPost", b =>
                 {
-                    b.HasOne("FindNest.Data.Models.RentPost", null)
-                        .WithMany()
-                        .HasForeignKey("RentPostsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Mediae");
 
-                    b.HasOne("FindNest.Data.Models.Utility", null)
-                        .WithMany()
-                        .HasForeignKey("UtilitiesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("RentPostRooms");
+                });
+
+            modelBuilder.Entity("FindNest.Data.Models.Room", b =>
+                {
+                    b.Navigation("RentPostRooms");
+                });
+
+            modelBuilder.Entity("FindNest.Data.Models.User", b =>
+                {
+                    b.Navigation("Likes");
                 });
 #pragma warning restore 612, 618
         }

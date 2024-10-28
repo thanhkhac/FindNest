@@ -12,5 +12,7 @@ namespace FindNest.Data.Models
         
         [StringLength(25)]
         public string? ContactPhoneNumber { get; set; }
+        
+        public ICollection<Like> Likes { get; set; }
     }
 }

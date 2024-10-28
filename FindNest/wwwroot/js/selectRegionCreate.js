@@ -8,7 +8,7 @@
                 targetSelect.empty();
                 targetSelect.append(`<option  value=""  disabled selected>${placeholder}</option>`);
                 data.forEach(function (region) {
-                    targetSelect.append(`<option value ="${region.id}">${region.name}</option>`)
+                    targetSelect.append(`<option value ="${region.id}">${region.fullName}</option>`)
                 })
                 updateRegionLabel();
             },

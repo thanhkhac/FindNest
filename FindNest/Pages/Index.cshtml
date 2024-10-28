@@ -19,7 +19,7 @@
                         @if (Model.SelectedRegions.Count > 0)
                         {
                             <span id="regionSelectLabel">
-                                @Model.SelectedRegions.Last().Name
+                                @Model.SelectedRegions.Last().FullName
                             </span>
                         }
                         else
@@ -108,7 +108,7 @@
                                 <option value="">Tất cả</option>
                                 @foreach (var region in @Model.CityRegions)
                                 {
-                                    <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.Name</option>
+                                    <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.FullName</option>
                                 }
                             </select>
                             <select class="form-select" id="districtSelect">
@@ -116,7 +116,7 @@
                                 <option value="">Tất cả</option>
                                 @foreach (var region in @Model.DistrictRegions)
                                 {
-                                    <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.Name</option>
+                                    <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.FullName</option>
                                 }
                             </select>
                             <select class="form-select" id="wardSelect">
@@ -124,7 +124,7 @@
                                 <option value="">Tất cả</option>
                                 @foreach (var region in @Model.WardRegions)
                                 {
-                                    <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.Name</option>
+                                    <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.FullName</option>
                                 }
                             </select>
                         </div>

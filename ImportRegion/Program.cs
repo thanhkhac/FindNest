@@ -39,7 +39,7 @@ class Program
                         {
                             Id = int.Parse(id) + 10000,
                             ParentId = int.Parse(parentId) + 100,
-                            Name = name,
+                            FullName = name,
                             Level = 3
                         };
                         regions.Add(region);

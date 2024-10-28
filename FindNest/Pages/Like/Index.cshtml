@@ -1,0 +1,36 @@
+﻿@page
+@model FindNest.Pages.Like.Index
+
+<form id="searchForm" asp-page="/Like" method="get">
+    <partial name="Shared/_RentPostListPartial" model="Model.RentPosts"/>
+
+    <div class="d-flex justify-content-center gap-2">
+        @if (@Model.PageCount < 10)
+        {
+            for (int i = 1; i <= Model.PageCount; i++)
+            {
+                <button form="searchForm" class="btn btn-primary" name="@nameof(@Model.SearchParam).@nameof(@Model.SearchParam.CurrentPage)" value="@i">
+                    @i
+                </button>
+            }
+        }
+        else
+        {
+            for (int i = 1; i <= 5; i++)
+            {
+                <button form="searchForm" class="btn btn-primary" name="@nameof(@Model.SearchParam).@nameof(@Model.SearchParam.CurrentPage)" value="@i">
+                    @i
+                </button>
+            }
+            <button class="btn btn-primary" href="">
+                ...
+            </button>
+            for (int i = Model.PageCount - 5; i <= Model.PageCount; i++)
+            {
+                <button form="searchForm" class="btn btn-primary" name="@nameof(@Model.SearchParam).@nameof(@Model.SearchParam.CurrentPage)" value="@i">
+                    @i
+                </button>
+            }
+        }
+    </div>
+</form>

@@ -8,6 +8,7 @@ namespace FindNest.Config
         {
             services.AddScoped<IRentPostRepository, RentPostRepository>();
             services.AddScoped<IRegionRepository, RegionRepository>();
+            services.AddScoped<ILikeRepository, LikeRepository>();
         }
     }
 }

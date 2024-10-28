@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using FindNest.Constants;
 
 namespace FindNest.Data.Models
 {
@@ -32,19 +33,19 @@ namespace FindNest.Data.Models
         public virtual Region? Region { get; set; }
         public virtual RentCategory? RentCategory { get; set; }
 
-        public virtual ICollection<Utility> Utilities { get; set; }
-
         public virtual ICollection<RentPostRoom> RentPostRooms { get; set; }
 
         public virtual ICollection<Media> Mediae { get; set; }
         
         
         [NotMapped]
-        public string RegionAddress { get; set; }
+        public string? RegionAddress { get; set; }
         [NotMapped]
-        public int BedRoomCount => RentPostRooms != null ? RentPostRooms.Count(x => x.RoomId == 1) : 0;
+        public int BedRoomCount => RentPostRooms?.FirstOrDefault(x => x.RoomId == RoomConst.Bedroom)?.Quantity ?? 0;
+
         [NotMapped]
-        public int BathRoomCount => RentPostRooms != null ? RentPostRooms.Count(x => x.RoomId == 3) : 0;
+        public int BathRoomCount => RentPostRooms?.FirstOrDefault(x => x.RoomId == RoomConst.Bathroom)?.Quantity ?? 0;
+
 
     }
 }

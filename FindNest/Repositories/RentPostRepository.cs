@@ -21,6 +21,7 @@ namespace FindNest.Repositories
         void Delete(int id);
 
         IEnumerable<RentCategory> GetAllRentCategories();
+        IEnumerable<RentPost> GetLikedPost(LikedPostSearchParam searchParams, out int TotalCount);
     }
 
     public class RentPostRepository : IRentPostRepository
@@ -34,70 +35,84 @@ namespace FindNest.Repositories
             _regionRepository = regionRepository;
         }
 
+        public IEnumerable<RentPost> GetLikedPost(LikedPostSearchParam searchParams, out int TotalCount)
+        {
+            var query = _context.Likes
+            .Include(x=>x.RentPost.RentPostRooms)
+            .Include(x=>x.RentPost.CreatedUser)
+            .Include(x=>x.RentPost.RentCategory)
+            .OrderByDescending(x=>x.LikedDate)
+            .Where(x=>x.UserId.Equals(searchParams.UserId))
+            .Select(x=>x.RentPost);
+            
+            TotalCount = query.Count();
+            
+            var rentPosts = query.Skip((searchParams.CurrentPage - 1) * searchParams.PageSize)
+                .Take(searchParams.PageSize)
+                .ToList();
+                
+            foreach (var rentPost in rentPosts)
+            {
+                rentPost.RegionAddress = rentPost.RegionId != null ? _regionRepository.GetAddress((int)rentPost.RegionId) : null;
+            }
+            return rentPosts;
+        }
 
         public IEnumerable<RentPost> Search(RentPostSearchParams? searchParams, out int TotalCount)
         {
             // Join with Users from the start
-var query = from rp in _context.RentPosts.Include(x => x.RentPostRooms)
-            join u in _context.Users on rp.CreatedBy equals u.Id
-            select new { RentPost = rp, User = u };
-
-            // Apply ordering
-            query = query.OrderByDescending(x => x.RentPost.CreatedAt).AsQueryable();
+            var query = _context.RentPosts
+                .Include(x => x.RentPostRooms)
+                .Include(x => x.CreatedUser)
+                .OrderByDescending(x => x.CreatedAt)
+                .AsQueryable();
 
             if (searchParams != null)
             {
-                Console.WriteLine(searchParams.ToString());
+                // Console.WriteLine(searchParams.ToString());
+                // Title
+                if (!string.IsNullOrWhiteSpace(searchParams.Title)) { query = query.Where(x => x.Title.Contains(searchParams.Title.Trim())); }
 
-                // Apply Title filter
-                if (!string.IsNullOrWhiteSpace(searchParams.Title)) { query = query.Where(x => x.RentPost.Title.Contains(searchParams.Title.Trim())); }
-
-                // Price filter
+                // Price 
                 if (searchParams.IsPriceMinMaxFilter && searchParams.IsNegotiatedPrice)
                 {
                     query = query.Where(x =>
-                        (x.RentPost.IsNegotiatedPrice == true) ||
-                        (((searchParams.MinPrice == null || x.RentPost.Price >= searchParams.MinPrice) &&
-                          (searchParams.MaxPrice == null || x.RentPost.Price <= searchParams.MaxPrice)))
+                        (x.IsNegotiatedPrice == true) ||
+                        (((searchParams.MinPrice == null || x.Price >= searchParams.MinPrice) &&
+                          (searchParams.MaxPrice == null || x.Price <= searchParams.MaxPrice)))
                     );
                 }
-                if (searchParams.IsNegotiatedPrice && !searchParams.IsPriceMinMaxFilter)
-                {
-                    query = query.Where(x => (x.RentPost.IsNegotiatedPrice == true));
-                }
+                if (searchParams.IsNegotiatedPrice && !searchParams.IsPriceMinMaxFilter) { query = query.Where(x => (x.IsNegotiatedPrice == true)); }
                 else if (!searchParams.IsNegotiatedPrice && searchParams.IsPriceMinMaxFilter)
                 {
                     query = query.Where(x =>
-                        (x.RentPost.IsNegotiatedPrice == false) &&
-                        (((searchParams.MinPrice == null || x.RentPost.Price >= searchParams.MinPrice) &&
-                          (searchParams.MaxPrice == null || x.RentPost.Price <= searchParams.MaxPrice)))
+                        (x.IsNegotiatedPrice == false) &&
+                        (((searchParams.MinPrice == null || x.Price >= searchParams.MinPrice) &&
+                          (searchParams.MaxPrice == null || x.Price <= searchParams.MaxPrice)))
                     );
                 }
 
-                // Address filter
-                if (!string.IsNullOrWhiteSpace(searchParams.Address))
-                {
-                    query = query.Where(x => x.RentPost.Address.Contains(searchParams.Address.Trim()));
-                }
+                // Address 
+                if (!string.IsNullOrWhiteSpace(searchParams.Address)) { query = query.Where(x => x.Address.Contains(searchParams.Address.Trim())); }
 
-                // Rent category filter
+                // Rent 
                 if (searchParams.RentCategoryIds != null)
                 {
                     query = query.Where(x =>
-                        x.RentPost.RentCategoryId != null &&
-                        (searchParams.RentCategoryIds.Contains((int)x.RentPost.RentCategoryId) || searchParams.RentCategoryIds.Count == 0));
+                        x.RentCategoryId != null &&
+                        (searchParams.RentCategoryIds.Contains((int)x.RentCategoryId) || searchParams.RentCategoryIds.Count == 0));
                 }
 
-                // Area filters
-                if (searchParams.MaxArea != null) { query = query.Where(x => x.RentPost.Area <= searchParams.MaxArea); }
-                if (searchParams.MinArea != null) { query = query.Where(x => x.RentPost.Area >= searchParams.MinArea); }
+                // Area 
+                if (searchParams.MaxArea != null) { query = query.Where(x => x.Area <= searchParams.MaxArea); }
+                if (searchParams.MinArea != null) { query = query.Where(x => x.Area >= searchParams.MinArea); }
 
-                // Region filter
+                // Region 
                 if (searchParams.RegionId != null)
                 {
                     int regionId = (int)searchParams.RegionId;
                     var childRegions = _regionRepository.GetChildRegionsRecursive(regionId).Select(x => x.Id).ToList();
-                    query = query.Where(x => childRegions.Contains((int)x.RentPost.RegionId));
+                    query = query.Where(x => childRegions.Contains((int)x.RegionId));
                 }
             }
 
@@ -108,33 +123,16 @@ var query = from rp in _context.RentPosts.Include(x => x.RentPostRooms)
                 .Take(searchParams.PageSize)
                 .ToList();
 
-            // Select the final result including user information
-            var result = from x in rentPosts
-                select new RentPost
+            foreach (var rentPost in rentPosts)
+            {
+                if (rentPost.RegionId != null )
                 {
-                    CreatedAt = x.RentPost.CreatedAt,
-                    UpdatedAt = x.RentPost.UpdatedAt,
-                    CreatedBy = x.RentPost.CreatedBy,
-                    IsDeleted = x.RentPost.IsDeleted,
-                    User = x.User, 
-                    Id = x.RentPost.Id,
-                    Title = x.RentPost.Title,
-                    RegionId = x.RentPost.RegionId,
-                    RentCategoryId = x.RentPost.RentCategoryId,
-                    Price = x.RentPost.Price,
-                    Area = x.RentPost.Area,
-                    Address = x.RentPost.Address,
-                    IsNegotiatedPrice = x.RentPost.IsNegotiatedPrice,
-                    Thumbnail = x.RentPost.Thumbnail,
-                    IsHidden = x.RentPost.IsHidden,
-                    Region = x.RentPost.Region,
-                    RentCategory = x.RentPost.RentCategory,
-                    Utilities = x.RentPost.Utilities,
-                    RentPostRooms = x.RentPost.RentPostRooms,
-                    RegionAddress = x.RentPost.RegionId != null ? _regionRepository.GetAddress((int)x.RentPost.RegionId) : null,
-                };
+                    rentPost.RegionAddress = _regionRepository.GetAddress((int)rentPost.RegionId);
+                }
+            }
 
-            return result.ToList();
+
+            return rentPosts;
         }
 
 
@@ -147,39 +145,15 @@ var query = from rp in _context.RentPosts.Include(x => x.RentPostRooms)
         public RentPost? GetById(int id)
         {
             var query =
-                from rp in _context.RentPosts
+                _context.RentPosts
                     .Include(x => x.Mediae)
                     .Include(x => x.RentPostRooms)
-                    .Include(x=>x.RentCategory)
-                join u in _context.Users on rp.CreatedBy equals u.Id into userGroup
-                select new { RentPost = rp, User = userGroup.DefaultIfEmpty() };
-            var x = query.FirstOrDefault(x => x.RentPost.Id == id);
-            var rentPost = new RentPost
-            {
-                CreatedAt = x.RentPost.CreatedAt,
-                UpdatedAt = x.RentPost.UpdatedAt,
-                CreatedBy = x.RentPost.CreatedBy,
-                IsDeleted = x.RentPost.IsDeleted,
-                User = x.User.FirstOrDefault(), // Getting the user from the group
-                Id = x.RentPost.Id,
-                Title = x.RentPost.Title,
-                RegionId = x.RentPost.RegionId,
-                RentCategoryId = x.RentPost.RentCategoryId,
-                Price = x.RentPost.Price,
-                Area = x.RentPost.Area,
-                Address = x.RentPost.Address,
-                IsNegotiatedPrice = x.RentPost.IsNegotiatedPrice,
-                Thumbnail = x.RentPost.Thumbnail,
-                IsHidden = x.RentPost.IsHidden,
-                Region = x.RentPost.Region,
-                RentCategory = x.RentPost.RentCategory,
-                Utilities = x.RentPost.Utilities,
-                RentPostRooms = x.RentPost.RentPostRooms,
-                RegionAddress = x.RentPost.RegionId != null ? _regionRepository.GetAddress((int)x.RentPost.RegionId) : null,
-                Mediae = x.RentPost.Mediae,
-                Description = x.RentPost.Description
-            };
-            return rentPost;
+                    .Include(x => x.RentCategory)
+                    .Include(rentPost => rentPost.Region).AsQueryable();
+            var x = query.FirstOrDefault(x => x.Id == id);
+            
+            x.RegionAddress = x.RegionId != null ? _regionRepository.GetAddress((int)x.RegionId) : null;
+            return x;
         }
 
         public void Add(RentPost rentPost)

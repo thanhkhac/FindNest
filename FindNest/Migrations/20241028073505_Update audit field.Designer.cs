@@ -4,16 +4,19 @@ using FindNest.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace FindNest.Data.Migrations
+namespace FindNest.Migrations
 {
     [DbContext(typeof(FindNestDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241028073505_Update audit field")]
+    partial class Updateauditfield
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,7 +40,7 @@ namespace FindNest.Data.Migrations
 
                     b.HasIndex("RentPostId");
 
-                    b.ToTable("Likes");
+                    b.ToTable("Like");
                 });
 
             modelBuilder.Entity("FindNest.Data.Models.Media", b =>
@@ -170,6 +173,9 @@ namespace FindNest.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedUserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("DeleteBy")
@@ -210,7 +216,7 @@ namespace FindNest.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedBy");
+                    b.HasIndex("CreatedUserId");
 
                     b.HasIndex("RegionId");
 
@@ -533,7 +539,7 @@ namespace FindNest.Data.Migrations
                 {
                     b.HasOne("FindNest.Data.Models.User", "CreatedUser")
                         .WithMany()
-                        .HasForeignKey("CreatedBy");
+                        .HasForeignKey("CreatedUserId");
 
                     b.HasOne("FindNest.Data.Models.Region", "Region")
                         .WithMany()

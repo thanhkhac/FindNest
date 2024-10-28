@@ -4,16 +4,19 @@ using FindNest.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace FindNest.Data.Migrations
+namespace FindNest.Migrations
 {
     [DbContext(typeof(FindNestDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241028063233_Remove utility")]
+    partial class Removeutility
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,24 +24,6 @@ namespace FindNest.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("FindNest.Data.Models.Like", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("RentPostId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("LikedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("UserId", "RentPostId");
-
-                    b.HasIndex("RentPostId");
-
-                    b.ToTable("Likes");
-                });
 
             modelBuilder.Entity("FindNest.Data.Models.Media", b =>
                 {
@@ -170,9 +155,6 @@ namespace FindNest.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("DeleteBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
@@ -210,8 +192,6 @@ namespace FindNest.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedBy");
-
                     b.HasIndex("RegionId");
 
                     b.HasIndex("RentCategoryId");
@@ -244,7 +224,22 @@ namespace FindNest.Data.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -255,22 +250,34 @@ namespace FindNest.Data.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "Phòng ngủ"
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsDeleted = false,
+                            Name = "Phòng ngủ",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Phòng khách"
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsDeleted = false,
+                            Name = "Phòng khách",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 3,
-                            Name = "Nhà vệ sinh"
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsDeleted = false,
+                            Name = "Nhà vệ sinh",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 4,
-                            Name = "Nhà bếp riêng"
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsDeleted = false,
+                            Name = "Nhà bếp riêng",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -501,25 +508,6 @@ namespace FindNest.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("FindNest.Data.Models.Like", b =>
-                {
-                    b.HasOne("FindNest.Data.Models.RentPost", "RentPost")
-                        .WithMany()
-                        .HasForeignKey("RentPostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FindNest.Data.Models.User", "User")
-                        .WithMany("Likes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RentPost");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("FindNest.Data.Models.Media", b =>
                 {
                     b.HasOne("FindNest.Data.Models.RentPost", "RentPost")
@@ -531,10 +519,6 @@ namespace FindNest.Data.Migrations
 
             modelBuilder.Entity("FindNest.Data.Models.RentPost", b =>
                 {
-                    b.HasOne("FindNest.Data.Models.User", "CreatedUser")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy");
-
                     b.HasOne("FindNest.Data.Models.Region", "Region")
                         .WithMany()
                         .HasForeignKey("RegionId");
@@ -542,8 +526,6 @@ namespace FindNest.Data.Migrations
                     b.HasOne("FindNest.Data.Models.RentCategory", "RentCategory")
                         .WithMany()
                         .HasForeignKey("RentCategoryId");
-
-                    b.Navigation("CreatedUser");
 
                     b.Navigation("Region");
 
@@ -630,11 +612,6 @@ namespace FindNest.Data.Migrations
             modelBuilder.Entity("FindNest.Data.Models.Room", b =>
                 {
                     b.Navigation("RentPostRooms");
-                });
-
-            modelBuilder.Entity("FindNest.Data.Models.User", b =>
-                {
-                    b.Navigation("Likes");
                 });
 #pragma warning restore 612, 618
         }

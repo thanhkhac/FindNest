@@ -46,7 +46,7 @@ namespace FindNest.Repositories
                 .FromSqlRaw("EXEC GetAddress @Id", IdParam)
                 .ToList();
             // Console.WriteLine(regions.Count);
-            return string.Join(", ", regions.Select(x => x.Name));
+            return string.Join(", ", regions.Select(x => x.FullName));
         }
         
         public List<Region> GetParentRegionsRecursive(int id)

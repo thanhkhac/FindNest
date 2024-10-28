@@ -65,7 +65,7 @@ namespace FindNest.Pages.Post
             Load();
             RentPost = _rentPostRepository.Search(Params, out int count).ToList();
             TotalCount = count;
-            PageCount = count/Params.PageSize;
+            PageCount = (int)Math.Ceiling((double)count /Params.PageSize);
             return Page();
         }        
     }

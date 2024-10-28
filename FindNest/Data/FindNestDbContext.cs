@@ -1,4 +1,5 @@
-﻿using FindNest.Data.Models;
+﻿using FindNest.Constants;
+using FindNest.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -29,12 +30,12 @@ namespace FindNest.Data
 
         public DbSet<ReceivedRequest> Requests { get; set; }
         public DbSet<Region> Regions { get; set; }
-        public DbSet<Utility> Utilities { get; set; }
         public DbSet<Media> Media { get; set; }
         public DbSet<RentPost> RentPosts { get; set; }
         public DbSet<RentCategory> RentCategories { get; set; }
         public DbSet<RentPostRoom> RentPostRooms { get; set; }
         public DbSet<Room> Rooms { get; set; }
+        public DbSet<Like> Likes { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -55,20 +56,20 @@ namespace FindNest.Data
             modelBuilder.Entity<Room>().HasData(
                 new Room
                 {
-                    Id = 1,
+                    Id = RoomConst.Bedroom,
                     Name = "Phòng ngủ"
                 }, new Room
                 {
-                    Id = 2,
+                    Id = RoomConst.Livingroom,
                     Name = "Phòng khách"
                 }, new Room
                 {
-                    Id = 3,
+                    Id = RoomConst.Bathroom,
                     Name = "Nhà vệ sinh"
                 },
                 new Room
                 {
-                    Id = 4,
+                    Id = RoomConst.Kitchen,
                     Name = "Nhà bếp riêng"
                 }
             );

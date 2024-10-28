@@ -50,7 +50,7 @@
                             <option value="" disabled selected>Chọn thành phố</option>
                             @foreach (var region in @Model.CityRegions)
                             {
-                                <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.Name</option>
+                                <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.FullName</option>
                             }
                         </select>
                     </div>
@@ -69,7 +69,7 @@
                             <option value="" disabled selected>Chọn huyện</option>
                             @foreach (var region in @Model.DistrictRegions)
                             {
-                                <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.Name</option>
+                                <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.FullName</option>
                             }
                         </select>
                     </div>
@@ -87,7 +87,7 @@
                             <option value="" disabled selected>Chọn phường xã</option>
                             @foreach (var region in @Model.WardRegions)
                             {
-                                <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.Name</option>
+                                <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.FullName</option>
                             }
                         </select>
                     </div>

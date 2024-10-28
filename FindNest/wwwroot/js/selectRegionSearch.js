@@ -9,7 +9,7 @@
                 targetSelect.append(`<option  value=""  disabled selected>${placeholder}</option>`);
                 targetSelect.append(`<option  value="" >Tất cả</option>`);
                 data.forEach(function (region) {
-                    targetSelect.append(`<option value ="${region.id}">${region.name}</option>`)
+                    targetSelect.append(`<option value ="${region.id}">${region.fullName}</option>`)
                 })
                 updateRegionLabel();
             },

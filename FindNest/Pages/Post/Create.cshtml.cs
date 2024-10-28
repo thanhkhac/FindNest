@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using FindNest.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -134,23 +135,19 @@ namespace FindNest.Pages.Post
             {
                 if (file != null && file.Length > 0)
                 {
-                    // Tạo GUID mới và thêm phần mở rộng tệp
                     var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}"; // Thêm phần mở rộng từ file gốc
                     var path = Path.Combine(Directory.GetCurrentDirectory(), "Upload", fileName);
             
-                    // Sử dụng ImageSharp để xử lý hình ảnh
                     using (var image = await Image.LoadAsync(file.OpenReadStream()))
                     {
-                        // Lưu hình ảnh với chất lượng giảm
-                        var quality = 75; // Chất lượng hình ảnh từ 0-100 (75% là một điểm tốt để giảm dung lượng)
+                        var quality = 75; 
 
-                        // Lưu hình ảnh dưới định dạng JPEG hoặc WEBP để giảm dung lượng
                         var encoder = new JpegEncoder
                         {
-                            Quality = quality // Chất lượng ảnh
+                            Quality = quality 
                         };
 
-                        await image.SaveAsync(path, encoder); // Lưu với encoder đã định nghĩa
+                        await image.SaveAsync(path, encoder); 
                     }
 
                     listPaths.Add(Path.Combine("/Upload", fileName));
@@ -164,6 +161,24 @@ namespace FindNest.Pages.Post
                 Order = RentPost.FileIndex.ElementAt(index),
             }).ToList();
             var user = await _userManager.GetUserAsync(User);
+            List<RentPostRoom> postRooms = new List<RentPostRoom>();
+            if (RentPost.BathroomQuantity > 0)
+            {
+                postRooms.Add(new RentPostRoom
+                {
+                    RoomId = RoomConst.Bathroom,
+                    Quantity = RentPost.BathroomQuantity
+                });
+            }
+            
+            if (RentPost.BedroomQuantity > 0)
+            {
+                postRooms.Add(new RentPostRoom
+                {
+                    RoomId = RoomConst.Bedroom,
+                    Quantity = RentPost.BedroomQuantity
+                });
+            }
             RentPost newRentPost = new RentPost
             {
                 CreatedAt = DateTime.Now,
@@ -180,8 +195,7 @@ namespace FindNest.Pages.Post
                 IsNegotiatedPrice = RentPost.IsNegotiatedPrice,
                 Thumbnail = RentPost.Thumbnail,
                 IsHidden = false,
-                // Utilities = null,
-                // RentPostRooms = null,
+                RentPostRooms = postRooms,
                 Mediae = mediaList,
                 RegionAddress = RentPost.Address
             };
@@ -191,7 +205,7 @@ namespace FindNest.Pages.Post
             _context.RentPosts.Add(newRentPost);
             await _context.SaveChangesAsync();
 
-            return RedirectToPage("./Index");
+            return RedirectToPage("Details", new { id = newRentPost.Id });
         }
     }
 }

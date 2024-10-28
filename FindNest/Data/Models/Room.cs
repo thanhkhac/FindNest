@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FindNest.Data.Models
 {
-    public class Room : BaseModel
+    public class Room 
     {
         [Key]       
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
