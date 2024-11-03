@@ -8,7 +8,7 @@
         public long? MinPrice { get; set; }
         public long? MaxPrice { get; set; }
         
-        public long? MinArea { get; set; } = 0;
+        public long? MinArea { get; set; }
         public long? MaxArea { get; set; }
         public string? Address { get; set; }
         public bool IsNegotiatedPrice { get; set; } = true;

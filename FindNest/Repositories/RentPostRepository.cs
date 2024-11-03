@@ -58,14 +58,15 @@ namespace FindNest.Repositories
             return rentPosts;
         }
 
-        public IEnumerable<RentPost> Search(RentPostSearchParams? searchParams, out int TotalCount)
+        public IEnumerable<RentPost> Search(RentPostSearchParams? searchParams, out int totalCount)
         {
             // Join with Users from the start
             var query = _context.RentPosts
                 .Include(x => x.RentPostRooms)
                 .Include(x => x.CreatedUser)
+                .Include(x => x.RentCategory)
                 .OrderByDescending(x => x.CreatedAt)
-                .AsQueryable();
+                .AsNoTracking().AsQueryable();
 
             if (searchParams != null)
             {
@@ -115,8 +116,9 @@ namespace FindNest.Repositories
                     query = query.Where(x => childRegions.Contains((int)x.RegionId));
                 }
             }
+            totalCount = query.Count();
+            Console.WriteLine(totalCount);
 
-            TotalCount = query.Count();
 
             // Pagination
             var rentPosts = query.Skip((searchParams.CurrentPage - 1) * searchParams.PageSize)
@@ -130,7 +132,6 @@ namespace FindNest.Repositories
                     rentPost.RegionAddress = _regionRepository.GetAddress((int)rentPost.RegionId);
                 }
             }
-
 
             return rentPosts;
         }

@@ -5,26 +5,44 @@
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<h3>@ViewData["Title"]</h3>
-<partial name="_StatusMessage" for="StatusMessage" />
+<h3>Thay đổi thông tin cá nhân</h3>
+<partial name="_StatusMessage" for="StatusMessage"/>
 <div class="row">
     <div class="col-md-6">
-        <form id="profile-form" method="post">
+        <form id="profile-form" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
+            @*             <div class="form-floating mb-3">
                 <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
                 <label asp-for="Username" class="form-label"></label>
+            </div> *@
+            <div class="mb-3">
+                <div class="bg-secondary rounded-circle mx-auto align-content-center text-center overflow-hidden" id="avatarContainer" style="height: 100px;width: 100px">
+                    <div class="text-white">
+                        <i class="fa-solid fa-image d-block"></i>
+                        <label for="avatarUpload" class="m-0">
+                            Tải ảnh lên
+                        </label>
+                    </div>
+                </div>
+                <input asp-for="Input.Avatar"  id="avatarUpload" onchange="previewImage(this, '#avatarContainer')" type="file" value="" accept="image/*" />
             </div>
             <div class="form-floating mb-3">
-                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number."/>
-                <label asp-for="Input.PhoneNumber" class="form-label"></label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                <input asp-for="Input.ContactPhoneNumber" class="form-control" placeholder="Vui lòng nhập số điện thoại liên hệ."/>
+                <label asp-for="Input.ContactPhoneNumber" class="form-label"></label>
+                <span asp-validation-for="Input.ContactPhoneNumber" class="text-danger"></span>
             </div>
-            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.FullName" class="form-control" placeholder="Vui lòng nhập họ và tên."/>
+                <label asp-for="Input.FullName" class="form-label"></label>
+                <span asp-validation-for="Input.ContactPhoneNumber" class="text-danger"></span>
+            </div>
+            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg bg-danger text-white">Cập nhật</button>
         </form>
     </div>
 </div>
 
+<script src="/js/previewChooseAvatar.js"></script>
+
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial"/>
 }

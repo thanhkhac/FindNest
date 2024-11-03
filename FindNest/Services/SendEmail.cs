@@ -25,7 +25,6 @@ namespace FindNest.Services
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            // Lấy mật khẩu ứng dụng từ biến môi trường
             var appPassword = _emailSettings.AppPassword;
 
             MailMessage mail = new MailMessage
@@ -33,7 +32,7 @@ namespace FindNest.Services
                 From = new MailAddress(_emailSettings.FromEmail),
                 Subject = subject,
                 Body = htmlMessage,
-                IsBodyHtml = true // Nếu bạn muốn gửi email HTML
+                IsBodyHtml = true 
             };
             mail.To.Add(email);
             SmtpClient smtpClient = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.SmtpPort);
@@ -41,7 +40,6 @@ namespace FindNest.Services
             smtpClient.Credentials = new NetworkCredential(_emailSettings.FromEmail, appPassword);
             smtpClient.EnableSsl = true;
 
-            // Sử dụng phương thức bất đồng bộ để gửi email
             await smtpClient.SendMailAsync(mail);
         }
     }

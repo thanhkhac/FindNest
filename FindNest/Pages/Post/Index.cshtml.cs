@@ -14,14 +14,14 @@ namespace FindNest.Pages.Post
 {
     public class IndexModel : PageModel
     {
-        private readonly FindNest.Data.FindNestDbContext _context;
+        // private readonly FindNest.Data.FindNestDbContext _context;
         private readonly IRentPostRepository _rentPostRepository;
         private readonly IRegionRepository _regionRepository;
 
         
         public IndexModel(FindNest.Data.FindNestDbContext context, IRentPostRepository rentPostRepository, IRegionRepository regionRepository)
         {
-            _context = context;
+            // _context = context;
             _rentPostRepository = rentPostRepository;
             _regionRepository = regionRepository;
         }

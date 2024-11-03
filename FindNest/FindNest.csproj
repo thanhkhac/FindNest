@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <Folder Include="Areas\" />
-    <Folder Include="Services\" />
     <Folder Include="ViewModels\" />
   </ItemGroup>
 

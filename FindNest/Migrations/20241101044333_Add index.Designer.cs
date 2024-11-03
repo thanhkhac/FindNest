@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FindNest.Migrations
 {
     [DbContext(typeof(FindNestDbContext))]
-    [Migration("20241028085905_Change")]
-    partial class Change
+    [Migration("20241101044333_Add index")]
+    partial class Addindex
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -213,6 +213,8 @@ namespace FindNest.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedAt");
+
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("RegionId");
@@ -284,6 +286,10 @@ namespace FindNest.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("Avatar")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<long>("Balance")
                         .HasColumnType("bigint");

@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using FindNest.Data.Models;
 using FindNest.Repositories;
-using FindNest.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
@@ -20,7 +19,7 @@ using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace FindNest.Pages.Post
 {
-    public class RentPostCreateViewModel
+    public class RentPostUpdateViewModel
     {
         [DisplayName("Tiêu đề")]
         [Required(ErrorMessage = "Vui lòng nhập tiêu đề", AllowEmptyStrings = false)]
@@ -64,131 +63,126 @@ namespace FindNest.Pages.Post
         [DisplayName("Số phòng tắm, vệ sinh")]
         [Required(ErrorMessage = "Vui lòng nhập số phòng tắm, nhà vệ sinh")]
         public int BathroomQuantity { get; set; }
-
+        
         [Range(0, int.MaxValue, ErrorMessage = "Số phòng ngủ không hợp lệ")]
         [DisplayName("Số phòng ngủ")]
         [Required(ErrorMessage = "Vui lòng nhập số phòng ngủ")]
         public int BedroomQuantity { get; set; }
-
+        
         [MaxLength(10_000)]
         [DisplayName("Mô tả")]
         public string? Description { get; set; }
     }
 
     [Authorize]
-    public class CreateModel : PageModel
+    public class UpdateModel : PageModel
     {
-        private readonly Data.FindNestDbContext _context;
+        private readonly FindNest.Data.FindNestDbContext _context;
         private readonly IRentPostRepository _rentPostRepository;
         private readonly IRegionRepository _regionRepository;
         private readonly UserManager<User> _userManager;
-        private readonly IFileService _fileService;
 
-        public List<RentCategory> RentCategories { get; set; } = new();
-        public List<Region> CityRegions { get; set; } = new();
-        public List<Region> DistrictRegions { get; set; } = new();
-        public List<Region> WardRegions { get; set; } = new();
-        public List<Region> SelectedRegions { get; set; } = new();
+        public List<RentCategory> RentCategories;
+        public List<Region> CityRegions = new List<Region>();
+        public List<Region> DistrictRegions = new List<Region>();
+        public List<Region> WardRegions = new List<Region>();
+        public List<Region> SelectedRegions = new List<Region>();
 
-        public CreateModel(FindNest.Data.FindNestDbContext context, IRentPostRepository rentPostRepository, IRegionRepository regionRepository,
-            UserManager<User> userManager, IFileService fileService)
+        public UpdateModel(FindNest.Data.FindNestDbContext context, IRentPostRepository rentPostRepository, IRegionRepository regionRepository,
+            UserManager<User> userManager)
         {
             _context = context;
             _rentPostRepository = rentPostRepository;
             _regionRepository = regionRepository;
             _userManager = userManager;
-            _fileService = fileService;
         }
 
         [BindProperty]
-        public RentPostCreateViewModel RentPost { get; set; } = new();
+        public RentPostUpdateViewModel RentPostUpdateVm { get; set; } = new RentPostUpdateViewModel();
 
 
         public void Load()
         {
             RentCategories = _rentPostRepository.GetAllRentCategories().ToList();
             CityRegions = _regionRepository.GetChildRegions(null);
-            if (RentPost.RegionId != null)
+            if (RentPostUpdateVm.RegionId != null)
             {
-                SelectedRegions = _regionRepository.GetParentRegionsRecursive((int)RentPost.RegionId);
+                SelectedRegions = _regionRepository.GetParentRegionsRecursive((int)RentPostUpdateVm.RegionId);
                 var city = SelectedRegions.FirstOrDefault(x => x.Level == 1);
                 var district = SelectedRegions.FirstOrDefault(x => x.Level == 2);
                 var ward = SelectedRegions.FirstOrDefault(x => x.Level == 3);
                 if (city != null) { DistrictRegions = _regionRepository.GetChildRegions(city.Id); }
                 if (district != null) { WardRegions = _regionRepository.GetChildRegions(district.Id); }
             }
-            ViewData["RentCategoryId"] = new SelectList(_context.RentCategories, "Id", "Name");
         }
 
-        public IActionResult OnGet()
+        public IActionResult OnGet(int? id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var rentpost = _rentPostRepository.GetById(id.Value);
+            
             Load();
             return Page();
         }
 
 
-        public async Task<List<string>> SaveFiles(List<IFormFile> formFiles, string folder)
-        {
-            List<string> listPaths = new List<string>();
-            foreach (var file in formFiles)
-            {
-                if (file.Length > 0)
-                {
-                    var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}"; // Thêm phần mở rộng từ file gốc
-                    var path = Path.Combine(Directory.GetCurrentDirectory(), folder, fileName);
-
-                    using (var image = await Image.LoadAsync(file.OpenReadStream()))
-                    {
-                        var quality = 75;
-
-                        var encoder = new JpegEncoder
-                        {
-                            Quality = quality
-                        };
-
-                        await image.SaveAsync(path, encoder);
-                    }
-
-                    listPaths.Add(Path.Combine("/" + folder, fileName));
-                }
-            }
-            return listPaths;
-        }
-
         public async Task<IActionResult> OnPostAsync()
         {
             Load();
             if (!ModelState.IsValid) { return Page(); }
-            var formFiles = RentPost.Images;
-            List<string> listPaths = await _fileService.SaveImagesAsync(formFiles, "Upload");
+            List<string> listPaths = new List<string>();
+            var imageFiles = RentPostUpdateVm.Images;
+            foreach (var file in imageFiles)
+            {
+                if (file.Length > 0)
+                {
+                    var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}"; // Thêm phần mở rộng từ file gốc
+                    var path = Path.Combine(Directory.GetCurrentDirectory(), "Upload", fileName);
+            
+                    using (var image = await Image.LoadAsync(file.OpenReadStream()))
+                    {
+                        var quality = 75; 
+
+                        var encoder = new JpegEncoder
+                        {
+                            Quality = quality 
+                        };
+
+                        await image.SaveAsync(path, encoder); 
+                    }
+
+                    listPaths.Add(Path.Combine("/Upload", fileName));
+                }
+            }
+
             var mediaList = listPaths.Select((x, index) => new Media
             {
                 MediaType = "IMG",
                 Path = x,
-                Order = RentPost.FileIndex.ElementAt(index),
+                Order = RentPostUpdateVm.FileIndex.ElementAt(index),
             }).ToList();
-
             var user = await _userManager.GetUserAsync(User);
-
             List<RentPostRoom> postRooms = new List<RentPostRoom>();
-            if (RentPost.BathroomQuantity > 0)
+            if (RentPostUpdateVm.BathroomQuantity > 0)
             {
                 postRooms.Add(new RentPostRoom
                 {
                     RoomId = RoomConst.Bathroom,
-                    Quantity = RentPost.BathroomQuantity
+                    Quantity = RentPostUpdateVm.BathroomQuantity
                 });
             }
-
-            if (RentPost.BedroomQuantity > 0)
+            
+            if (RentPostUpdateVm.BedroomQuantity > 0)
             {
                 postRooms.Add(new RentPostRoom
                 {
                     RoomId = RoomConst.Bedroom,
-                    Quantity = RentPost.BedroomQuantity
+                    Quantity = RentPostUpdateVm.BedroomQuantity
                 });
             }
-
             RentPost newRentPost = new RentPost
             {
                 CreatedAt = DateTime.Now,
@@ -196,20 +190,21 @@ namespace FindNest.Pages.Post
                 CreatedBy = user.Id,
                 UpdatedBy = user.Id,
                 IsDeleted = false,
-                Title = RentPost.Title,
-                RegionId = RentPost.RegionId,
-                RentCategoryId = RentPost.RentCategoryId,
-                Price = RentPost.Price.Value,
-                Area = RentPost.Area.Value,
-                Address = RentPost.Address,
-                IsNegotiatedPrice = RentPost.IsNegotiatedPrice,
-                Thumbnail = RentPost.Thumbnail,
+                Title = RentPostUpdateVm.Title,
+                RegionId = RentPostUpdateVm.RegionId,
+                RentCategoryId = RentPostUpdateVm.RentCategoryId,
+                Price = RentPostUpdateVm.Price.Value,
+                Area = RentPostUpdateVm.Area.Value,
+                Address = RentPostUpdateVm.Address,
+                IsNegotiatedPrice = RentPostUpdateVm.IsNegotiatedPrice,
+                Thumbnail = RentPostUpdateVm.Thumbnail,
                 IsHidden = false,
                 RentPostRooms = postRooms,
                 Mediae = mediaList,
-                RegionAddress = RentPost.Address
+                RegionAddress = RentPostUpdateVm.Address
             };
             if (newRentPost.Thumbnail == null && listPaths != null && listPaths.Count > 0) { newRentPost.Thumbnail = listPaths.First(); }
+
 
             _context.RentPosts.Add(newRentPost);
             await _context.SaveChangesAsync();

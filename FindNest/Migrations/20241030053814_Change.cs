@@ -31,6 +31,13 @@ namespace FindNest.Migrations
                 table: "Likes",
                 newName: "IX_Likes_RentPostId");
 
+            migrationBuilder.AddColumn<string>(
+                name: "Avatar",
+                table: "AspNetUsers",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: true);
+
             migrationBuilder.AddPrimaryKey(
                 name: "PK_Likes",
                 table: "Likes",
@@ -67,6 +74,10 @@ namespace FindNest.Migrations
             migrationBuilder.DropPrimaryKey(
                 name: "PK_Likes",
                 table: "Likes");
+
+            migrationBuilder.DropColumn(
+                name: "Avatar",
+                table: "AspNetUsers");
 
             migrationBuilder.RenameTable(
                 name: "Likes",

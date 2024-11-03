@@ -1,4 +1,4 @@
-﻿function previewImages(inputFiles, displayTarget, indexInputName) {
+﻿    function previewImages(inputFiles, displayTarget, indexInputName) {
     const files = inputFiles.files;
 
     $.each(files, function(index, file) {

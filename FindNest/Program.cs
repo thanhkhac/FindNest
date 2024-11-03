@@ -17,6 +17,7 @@ namespace FindNest
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            //Cấu hình dung lượng tối đa của request
             builder.WebHost.ConfigureKestrel(serverOptions =>
             {
                 serverOptions.Limits.MaxRequestBodySize = 104857600; // 100MB
@@ -66,8 +67,6 @@ namespace FindNest
             
             //Cấu hình API
             builder.Services.AddControllers();
-            
-
             builder.Services.AddEndpointsApiExplorer(); // Tự động khám phá API endpoints
             builder.Services.AddSwaggerGen(c =>
             {
@@ -79,7 +78,7 @@ namespace FindNest
                 });
             });
 
-
+            //////////////////////////////////////////
             var app = builder.Build();
 
 
@@ -92,12 +91,18 @@ namespace FindNest
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            
+            //Cấu hình CORS
             app.UseCors("AllowAllOrigins");
-            var fileProvider = new PhysicalFileProvider(
-                Path.Combine(builder.Environment.ContentRootPath, "Upload"));
+
             var requestPath = "/Upload";
             app.UseHttpsRedirection();
+
+            //Cấu hình folder static file
+            app.UseStaticFiles();
+            
+            
+            var fileProvider = new PhysicalFileProvider(
+                Path.Combine(builder.Environment.ContentRootPath, "Upload"));
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = fileProvider,
@@ -108,15 +113,12 @@ namespace FindNest
                 FileProvider = fileProvider,
                 RequestPath = requestPath
             });
-            app.UseStaticFiles();
+           
 
             app.UseRouting();
-
             app.UseAuthorization();
-
             app.MapRazorPages();
             app.MapControllers();
-            
             app.UseSwagger();
             app.UseSwaggerUI(c => 
             {

@@ -1,5 +1,5 @@
 @page
-@model FindNest.Pages.Post.CreateModel
+@model FindNest.Pages.Post.UpdateModel
 
 @{
     ViewData["Title"] = "Create";
@@ -15,26 +15,26 @@
         <form method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="RentPost.Title" class="@labelStyle"></label>
+                <label asp-for="RentPostUpdateVm.Title" class="@labelStyle"></label>
                 <div class="input-group">
                     <div class="input-group-prepend col-1 text-center">
                         <span class="input-group-text text-danger align-content-center d-block h-100">
                             <i class="fa-solid fa-t"></i>
                         </span>
                     </div>
-                    <input asp-for="RentPost.Title" class="@inputStyle"/>
+                    <input asp-for="RentPostUpdateVm.Title" class="@inputStyle"/>
                 </div>
-                <span asp-validation-for="RentPost.Title" class="text-danger"></span>
+                <span asp-validation-for="RentPostUpdateVm.Title" class="text-danger"></span>
             </div>
             <div class="form-group mt-3">
-                <label asp-for="RentPost.RentCategoryId" class="@labelStyle"></label>
+                <label asp-for="RentPostUpdateVm.RentCategoryId" class="@labelStyle"></label>
                 <div class="input-group">
                     <div class="input-group-prepend col-1 text-center">
                         <span class="input-group-text text-danger align-content-center d-block h-100">
                             <i class="fa-solid fa-house-flag"></i>
                         </span>
                     </div>
-                    <select asp-for="RentPost.RentCategoryId" class="form-control form-select @inputStyle" asp-items="ViewBag.RentCategoryId"></select>
+                    <select asp-for="RentPostUpdateVm.RentCategoryId" class="form-control form-select @inputStyle" asp-items="ViewBag.RentCategoryId"></select>
                 </div>
             </div>
             <div>
@@ -50,18 +50,19 @@
                             <option value="" disabled selected>Chọn thành phố</option>
                             @foreach (var region in @Model.CityRegions)
                             {
+                                
                                 <option value="@region.Id" selected=@(Model.SelectedRegions.Contains(region))>@region.FullName</option>
                             }
                         </select>
                     </div>
 
-                    <span asp-validation-for="RentPost.RegionId" class="text-danger"></span>
+                    <span asp-validation-for="RentPostUpdateVm.RegionId" class="text-danger"></span>
                 </div>
                 <div class="mt-3">
                     <label class="@labelStyle" for="">Quận/Huyện</label>
                     <div class="input-group">
                         <div class="input-group-prepend col-1 text-center">
-                            <span class="input-group-text text-danger align-content-center d-block h-100">
+                        <span class="input-group-text text-danger align-content-center d-block h-100">
                                 <i class="fa-solid fa-location-dot d-block"></i>
                             </span>
                         </div>
@@ -73,13 +74,13 @@
                             }
                         </select>
                     </div>
-                    <span asp-validation-for="RentPost.RegionId" class="text-danger"></span>
+                    <span asp-validation-for="RentPostUpdateVm.RegionId" class="text-danger"></span>
                 </div>
                 <div class="mt-3">
                     <label class="@labelStyle" for="">Phường/Xã</label>
                     <div class="input-group">
                         <div class="input-group-prepend col-1 text-center">
-                            <span class="input-group-text text-danger align-content-center d-block h-100">
+                        <span class="input-group-text text-danger align-content-center d-block h-100">
                                 <i class="fa-solid fa-location-dot d-block"></i>
                             </span>
                         </div>
@@ -92,84 +93,81 @@
                         </select>
                     </div>
 
-                    <span asp-validation-for="RentPost.RegionId" class="text-danger"></span>
+                    <span asp-validation-for="RentPostUpdateVm.RegionId" class="text-danger"></span>
 
                 </div>
             </div>
             <div class="form-group mt-3">
-                <label asp-for="RentPost.Address" class="@labelStyle"></label>
+                <label asp-for="RentPostUpdateVm.Price" class="@labelStyle"></label>
+                <div class="input-group">
+                    <div class="input-group-prepend col-1 text-center">
+                        <span class="input-group-text text-danger align-content-center d-block h-100">
+                            <i class="fa-regular fa-money-bill-1"></i>
+                        </span>
+                    </div>
+                    <input asp-for="RentPostUpdateVm.Price" type="text" pattern="\d*" maxlength="10" id="inputPrice" oninput="bindReadNumberToInput(this,'#priceText')" class="@inputStyle" value="@(Model.RentPostUpdateVm.Price != null ? Model.RentPostUpdateVm.Price : 1_000_000)"/>
+                </div>
+                <div>
+                    <span id="priceText"></span><span>&nbsp;đồng</span>
+                </div>
+                <span asp-validation-for="RentPostUpdateVm.Price" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-3">
+                <label asp-for="RentPostUpdateVm.Area" class="@labelStyle"></label> <span class="fw-bold">(m<sup>2</sup>)</span>
+
+                <div class="input-group">
+                    <div class="input-group-prepend col-1 text-center">
+                        <span class="input-group-text text-danger align-content-center d-block h-100">
+                            <i class="fa-solid fa-maximize "></i>
+                        </span>
+                    </div>
+                    <input asp-for="RentPostUpdateVm.Area" class="@inputStyle" value="15"/>
+                </div>
+                <span asp-validation-for="RentPostUpdateVm.Area" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-3">
+                <label asp-for="RentPostUpdateVm.Address" class="@labelStyle"></label>
                 <div class="input-group">
                     <div class="input-group-prepend col-1 text-center">
                         <span class="input-group-text text-danger align-content-center d-block h-100">
                             <i class="fa-solid fa-location-dot d-block"></i>
                         </span>
                     </div>
-                    <input asp-for="RentPost.Address" class="@inputStyle"/>
+                    <input asp-for="RentPostUpdateVm.Address" class="@inputStyle"/>
                 </div>
-                <span asp-validation-for="RentPost.Address" class="text-danger"></span>
-            </div>
-            <div class="d-flex">
-                <div class="form-group mt-3 w-50">
-                    <label asp-for="RentPost.Price" class="@labelStyle"></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend col-2 text-center">
-                            <span class="input-group-text text-danger align-content-center d-block h-100">
-                                <i class="fa-regular fa-money-bill-1"></i>
-                            </span>
-                        </div>
-                        <input asp-for="RentPost.Price" type="text" pattern="\d*" maxlength="10" id="inputPrice" oninput="bindReadNumberToInput(this,'#priceText')" class="@inputStyle" value="@(Model.RentPost.Price != null ? Model.RentPost.Price : 1_000_000)"/>
-                    </div>
-                    <div>
-                        <span id="priceText"></span><span>&nbsp;đồng</span>
-                    </div>
-                    <span asp-validation-for="RentPost.Price" class="text-danger"></span>
-                </div>
-                <div class="form-group mt-3 w-50">
-                    <label asp-for="RentPost.Area" class="@labelStyle"></label> <span class="fw-bold">(m<sup>2</sup>)</span>
-                    <div class="input-group">
-                        <div class="input-group-prepend col-2 text-center">
-                            <span class="input-group-text text-danger align-content-center d-block h-100">
-                                <i class="fa-solid fa-maximize "></i>
-                            </span>
-                        </div>
-                        <input asp-for="RentPost.Area" class="@inputStyle" value="15"/>
-                    </div>
-                    <span asp-validation-for="RentPost.Area" class="text-danger"></span>
-                </div>
+                <span asp-validation-for="RentPostUpdateVm.Address" class="text-danger"></span>
             </div>
 
-            <div class="d-flex">
-                <div class="form-group mt-3 w-50">
-                    <label asp-for="RentPost.BedroomQuantity" class="@labelStyle"></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend col-2 text-center">
-                            <span class="input-group-text text-danger align-content-center d-block h-100">
-                                <i class="fa-solid fa-bed d-block "></i>
-                            </span>
-                        </div>
-                        <input asp-for="RentPost.BedroomQuantity" class="@inputStyle"/>
+            <div class="form-group mt-3">
+                <label asp-for="RentPostUpdateVm.BedroomQuantity" class="@labelStyle"></label>
+                <div class="input-group">
+                    <div class="input-group-prepend col-1 text-center">
+                        <span class="input-group-text text-danger align-content-center d-block h-100">
+                            <i class="fa-solid fa-bed d-block "></i>
+                        </span>
                     </div>
-                    <span asp-validation-for="RentPost.BedroomQuantity" class="text-danger"></span>
+                    <input asp-for="RentPostUpdateVm.BedroomQuantity" class="@inputStyle"/>
                 </div>
-
-                <div class="form-group mt-3 w-50">
-                    <label asp-for="RentPost.BathroomQuantity" class="@labelStyle"></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend col-2 text-center">
-                            <span class="input-group-text text-danger align-content-center d-block h-100">
-                                <i class="fa-solid fa-shower d-block"></i>
-                            </span>
-                        </div>
-                        <input asp-for="RentPost.BathroomQuantity" class="@inputStyle"/>
-                    </div>
-                    <span asp-validation-for="RentPost.BathroomQuantity" class="text-danger"></span>
-                </div>
+                <span asp-validation-for="RentPostUpdateVm.BedroomQuantity" class="text-danger"></span>
             </div>
 
-
+            <div class="form-group mt-3">
+                <label asp-for="RentPostUpdateVm.BathroomQuantity" class="@labelStyle"></label>
+                <div class="input-group">
+                    <div class="input-group-prepend col-1 text-center">
+                        <span class="input-group-text text-danger align-content-center d-block h-100">
+                            <i class="fa-solid fa-shower d-block"></i>
+                        </span>
+                    </div>
+                    <input asp-for="RentPostUpdateVm.BathroomQuantity" class="@inputStyle"/>
+                </div>
+                <span asp-validation-for="RentPostUpdateVm.BathroomQuantity" class="text-danger"></span>
+            </div>
+            
+            
             <div class="form-group form-check mt-3">
                 <label class="@labelStyle">
-                    <input class="form-check-input" asp-for="RentPost.IsNegotiatedPrice"/> <label class="fw-bold" for=""> @Html.DisplayNameFor(model => model.RentPost.IsNegotiatedPrice)</label>
+                    <input class="form-check-input" asp-for="RentPostUpdateVm.IsNegotiatedPrice"/> <label class="fw-bold" for=""> @Html.DisplayNameFor(model => model.RentPostUpdateVm.IsNegotiatedPrice)</label>
                 </label>
             </div>
 
@@ -187,9 +185,9 @@
             </div>
 
             <div class="mt-3">
-                <label asp-for="RentPost.Description" class="@labelStyle"></label>
+                <label asp-for="RentPostUpdateVm.Description" class="@labelStyle"></label>
                 <div>
-                    <textarea asp-for="@Model.RentPost.Description" class="form-control" rows="20"></textarea>
+                    <textarea asp-for="@Model.RentPostUpdateVm.Description" class="form-control" rows="20"></textarea>
                 </div>
             </div>
 
@@ -198,13 +196,13 @@
             @*     <input asp-for="RentPost.Thumbnail" class="@inputStyle"/> *@
             @*     <span asp-validation-for="RentPost.Thumbnail" class="text-danger"></span> *@
             @* </div> *@
-
+            
 
             <div class="form-group mt-3">
                 <input type="submit" value="Đăng" class="btn btn-danger"/>
             </div>
             <input id="regionId" type="hidden"
-                   name="@nameof(Model.RentPost).@nameof(@Model.RentPost.RegionId)"
+                   name="@nameof(Model.RentPostUpdateVm).@nameof(@Model.RentPostUpdateVm.RegionId)"
                    value="@(Model.SelectedRegions.Count > 0 ? Model.SelectedRegions.Last().Id.ToString() : "")">
         </form>
 
@@ -215,14 +213,13 @@
     <a asp-page="Index">Back to List</a>
 </div>
 
-<input class="form-control d-none" asp-for="@Model.RentPost.Images"
-       id="imageUploadInput" onchange="previewImages(this,'#imageUploaded', '@nameof(Model.RentPost).@nameof(Model.RentPost.FileIndex)')" multiple type="file">
+<input class="form-control d-none" asp-for="@Model.RentPostUpdateVm.Images"
+       id="imageUploadInput" onchange="previewImages(this,'#imageUploaded', '@nameof(Model.RentPostUpdateVm).@nameof(Model.RentPostUpdateVm.FileIndex)')" multiple type="file">
 <script>
     bindReadNumberToInput('#inputPrice', '#priceText')
 </script>
 <script src="/js/selectRegionCreate.js"></script>
 <script src="/js/previewChooseImage.js"></script>
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial"/>
 }

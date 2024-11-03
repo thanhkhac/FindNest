@@ -2,9 +2,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using FindNest.Constants;
+using Microsoft.EntityFrameworkCore;
 
 namespace FindNest.Data.Models
 {
+    [Index(nameof(RentCategoryId))]
+    [Index(nameof(CreatedAt))]
     public class RentPost : BaseModel
     {
         [Key]
