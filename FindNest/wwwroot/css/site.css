@@ -43,6 +43,10 @@ input[type=checkbox]:checked {
   border-color: #dc3545;
 }
 
+.my-bg-gray{
+  background-color: #F2F2F2;
+}
+
 
 ::-webkit-scrollbar {
   width: 10px;
@@ -64,3 +68,5 @@ input[type=checkbox]:checked {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+

@@ -1,25 +1,17 @@
 ﻿@{
-    if (ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout !=  null)
-    {
-        Layout = parentLayout.ToString();
-    }
-    else
-    {
-        // Layout = "/Areas/Identity/Pages/_Layout.cshtml";
-    }
+    Layout = "/Pages/Shared/_HomepageLayout.cshtml";
 }
 
-<h1>Quản lý tài khoản</h1>
 
 <div class="">
-    <h2>Cài đặt</h2>
-    <hr class=""/>
     <div class="row">
         <div class="col-md-3">
             <partial name="_ManageNav" />
         </div>
         <div class="col-md-9">
-            @RenderBody()
+            <div class="container ">
+                @RenderBody()
+            </div>
         </div>
     </div>
 </div>

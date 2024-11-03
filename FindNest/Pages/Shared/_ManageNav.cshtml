@@ -1,4 +1,5 @@
-﻿@inject SignInManager<User> SignInManager
+﻿@using FindNest.Areas.Identity.Pages.Account.Manage
+@inject SignInManager<User> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 
@@ -46,23 +47,23 @@
                     <hr>
                 </li>
                 <li class="nav-item">
-                    <a class="@navLinkStyle @ManageNavPages.IndexNavClass(ViewContext)" asp-page="./Index">@Html.Raw("Thông tin cá nhân")</a>
+                    <a class="@navLinkStyle @ManageNavPages.IndexNavClass(ViewContext)"  asp-area="Identity" asp-page="/Account/Manage/Index">@Html.Raw("Thông tin cá nhân")</a>
                 </li>
                 <li class="nav-item">
-                    <a class="@navLinkStyle @ManageNavPages.EmailNavClass(ViewContext)" asp-page="./Email">Email</a>
+                    <a class="@navLinkStyle @ManageNavPages.EmailNavClass(ViewContext)"  asp-area="Identity" asp-page="/Account/Manage/Email">Email</a>
                 </li>
                 <li class="nav-item">
-                    <a class="@navLinkStyle @ManageNavPages.ChangePasswordNavClass(ViewContext)" asp-page="./ChangePassword">Đổi mật khẩu</a>
+                    <a class="@navLinkStyle @ManageNavPages.ChangePasswordNavClass(ViewContext)"  asp-area="Identity" asp-page="/Account/Manage/ChangePassword">Đổi mật khẩu</a>
                 </li>
                 @if (hasExternalLogins)
                 {
                     <li id="external-logins" class="nav-item">
-                        <a id="external-login" class="@navLinkStyle @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins">Đăng nhập với tài khoản liên kết</a>
+                        <a id="external-login" class="@navLinkStyle @ManageNavPages.ExternalLoginsNavClass(ViewContext)"  asp-area="Identity" asp-page="/Account/Manage/ExternalLogins">Đăng nhập với tài khoản liên kết</a>
                     </li>
                 }
                 @* <li class="nav-item"><a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-page="./TwoFactorAuthentication">Two-factor authentication</a></li> *@
                 <li class="nav-item">
-                    <a class="@navLinkStyle @ManageNavPages.PersonalDataNavClass(ViewContext)" asp-page="./DeletePersonalData">Xóa tài khoản</a>
+                    <a class="@navLinkStyle @ManageNavPages.PersonalDataNavClass(ViewContext)" asp-area="Identity" asp-page="/Account/Manage/DeletePersonalData">Xóa tài khoản</a>
                 </li>
             </ul>
         </div>
