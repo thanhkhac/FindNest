@@ -1,11 +1,11 @@
 @page
+@using System.Globalization
 @using FindNest.Ultilities
 @model IndexModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Tìm kiếm";
 }
-
 
 <div class="row justify-content-center">
     <div class="col-12 row justify-content-center p-0 mt-2">
@@ -46,35 +46,7 @@
             Tổng số kết quả: @Model.TotalCount kết quả
         </div>
         <partial name="Shared/_RentPostListPartial" model="Model.RentPost"/>
-        <div class="d-flex justify-content-center gap-2">
-            @if (@Model.PageCount < 10)
-            {
-                for (int i = 1; i <= Model.PageCount; i++)
-                {
-                    <button form="searchForm" class="btn btn-primary" name="@nameof(@Model.Params).@nameof(@Model.Params.CurrentPage)" value="@i">
-                        @i
-                    </button>
-                }
-            }
-            else
-            {
-                for (int i = 1; i <= 5; i++)
-                {
-                    <button form="searchForm" class="btn btn-primary" name="@nameof(@Model.Params).@nameof(@Model.Params.CurrentPage)" value="@i">
-                        @i
-                    </button>
-                }
-                <button class="btn btn-primary" href="">
-                    ...
-                </button>
-                for (int i = Model.PageCount - 5; i <= Model.PageCount; i++)
-                {
-                    <button form="searchForm" class="btn btn-primary" name="@nameof(@Model.Params).@nameof(@Model.Params.CurrentPage)" value="@i">
-                        @i
-                    </button>
-                }
-            }
-        </div>
+        <partial name="Shared/_PaginationPartial" model="Model.PaginationPm"/>
     </div>
     <div class="col-2 p-0 mt-4 ps-2 d-none d-md-block">
         <div class="border rounded p-3 d-flex flex-column gap-2">
@@ -117,7 +89,10 @@
                         <label class="form-check-label">Theo khoảng giá</label>
                     </div>
                     <div class="value-display text-center"><span id="minPriceValue">0 triệu</span> - <span id="maxPriceValue">15 triệu</span></div>
-                    <div id="slider" class="w-75 mx-auto"></div>
+                    <div id="slider" class="w-75 mx-auto"
+                         data-min="@(Model.Params.MinPrice != null ? (Model.Params.MinPrice / 1_000_000.0).Value.ToString("F1", CultureInfo.InvariantCulture) : "0")"
+                         data-max="@(Model.Params.MaxPrice != null ? (Model.Params.MaxPrice / 1_000_000.0).Value.ToString("F1", CultureInfo.InvariantCulture) : "0")">
+                    </div>
                     <div class="form-check mt-4 ms-5">
                         <input class="form-check-input" asp-for="Params.IsNegotiatedPrice" type="checkbox">
                         <label class="form-check-label">Giá thỏa thuận</label>
@@ -230,8 +205,8 @@
         <input id="regionId" type="hidden"
                name="@nameof(Model.Params).@nameof(@Model.Params.RegionId)"
                value="@(Model.SelectedRegions.Count > 0 ? Model.SelectedRegions.Last().Id.ToString() : "")">
-        <input type="hidden" id="minPrice" name="@nameof(Model.Params).@nameof(Model.Params.MinPrice)">
-        <input type="hidden" id="maxPrice" name="@nameof(Model.Params).@nameof(Model.Params.MaxPrice)">
+        <input type="hidden" id="minPrice" name="@nameof(Model.Params).@nameof(Model.Params.MinPrice)" value="@Model.Params.MinPrice">
+        <input type="hidden" id="maxPrice" name="@nameof(Model.Params).@nameof(Model.Params.MaxPrice)" value="@Model.Params.MaxPrice">
     </div>
 </form>
 

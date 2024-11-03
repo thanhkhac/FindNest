@@ -97,12 +97,9 @@ namespace FindNest.Repositories
                 if (!string.IsNullOrWhiteSpace(searchParams.Address)) { query = query.Where(x => x.Address.Contains(searchParams.Address.Trim())); }
 
                 // Rent 
-                if (searchParams.RentCategoryIds != null)
-                {
-                    query = query.Where(x =>
-                        x.RentCategoryId != null &&
-                        (searchParams.RentCategoryIds.Contains((int)x.RentCategoryId) || searchParams.RentCategoryIds.Count == 0));
-                }
+                query = query.Where(x =>
+                    x.RentCategoryId != null &&
+                    (searchParams.RentCategoryIds.Contains((int)x.RentCategoryId) || searchParams.RentCategoryIds.Count == 0));
 
                 // Area 
                 if (searchParams.MaxArea != null) { query = query.Where(x => x.Area <= searchParams.MaxArea); }
@@ -121,7 +118,7 @@ namespace FindNest.Repositories
 
 
             // Pagination
-            var rentPosts = query.Skip((searchParams.CurrentPage - 1) * searchParams.PageSize)
+            var rentPosts = query.Skip((searchParams!.CurrentPage - 1) * searchParams.PageSize)
                 .Take(searchParams.PageSize)
                 .ToList();
 

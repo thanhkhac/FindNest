@@ -1,31 +1,28 @@
 ﻿$(document).ready(function() {
-    var slider = $("#slider")[0]; // Lấy phần tử slider bằng jQuery
-    var initialLoad = 0; 
+    var slider = $("#slider")[0]; 
+
+    var startMin = $("#slider").data("min") || 0; // Giá trị mặc định là 0 nếu không có data-min
+    var startMax = $("#slider").data("max") || 20; // Giá trị mặc định là 20 nếu không có data-max
 
     noUiSlider.create(slider, {
-        start: [0, 200],
+        start: [startMin, startMax], // Thiết lập giá trị start từ data-attributes
         connect: true,
         range: {
             min: 0,
-            max: 200,
+            max: 20,
         },
-        step: 1,
+        step: 0.1,
         format: {
-            to: function (value) {
-                return (value * 0.1).toFixed(1);
+            to: function(value) {
+                return value;
             },
-            from: function (value) {
-                return value * 100000;
+            from: function(value) {
+                return value;
             }
         },
     });
 
-    slider.noUiSlider.on("update", function (values, handle) {
-        if (initialLoad === 2) {
-            initialLoad ++;
-            return;
-        }
-        console.log('Hello');
+    slider.noUiSlider.on("update", function(values) {
         $("#minPriceValue").text('Từ ' + values[0]);
         $("#maxPriceValue").text(values[1] + ' triệu' + (values[1] >= 20 ? '+' : ''));
         $("#minPrice").val(values[0] * 1_000_000);

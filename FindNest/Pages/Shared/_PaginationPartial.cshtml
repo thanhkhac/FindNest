@@ -1,0 +1,59 @@
+﻿@model FindNest.Pages.Shared.PartialModels.PaginationPm
+
+<div class="d-flex justify-content-center gap-2">
+    @if (Model.PageCount > 1)
+    {
+        //Nếu trang hiện tại lớn hơn 1: Hiện thị nút quay về
+        if (Model.CurrentPage > 1)
+        {
+            <button form="searchForm" class="btn btn-dark text-white" name="@Model.ParamName" value="@(Model.CurrentPage - 1)">
+                &laquo;
+            </button>
+        }
+        
+        //Nếu trang hiện tại lớn hơn 3: Hiện thị "Button trang đầu tiên" và "Button ..."
+        if (Model.CurrentPage > 3)
+        {
+            <button form="searchForm" class="btn btn-dark text-white" name="@Model.ParamName" value="1">
+                1
+            </button>
+            <span class="btn btn-light disabled">...</span>
+        }
+        
+        //In các trang trước trang hiện tại
+        for (int i = Math.Max(1, Model.CurrentPage - 2); i < Model.CurrentPage; i++)
+        {
+            <button form="searchForm" class="btn btn-dark text-white" name="@Model.ParamName" value="@i">
+                @i
+            </button>
+        }
+        
+        //Trang hiện tại
+        <span class="btn btn-secondary disabled">@Model.CurrentPage</span>
+
+        //Hiển thị các trang sau trang hiện tại
+        for (int i = Model.CurrentPage + 1; i <= Math.Min(Model.PageCount, Model.CurrentPage + 2); i++)
+        {
+            <button form="searchForm" class="btn btn-dark text-white" name="@Model.ParamName" value="@i">
+                @i
+            </button>
+        }
+
+        //Hiển thị trang cuối
+        if (Model.CurrentPage < Model.PageCount - 2)
+        {
+            <span class="btn btn-light disabled">...</span>
+            <button form="searchForm" class="btn btn-dark text-white" name="@Model.ParamName" value="@Model.PageCount">
+                @Model.PageCount
+            </button>
+        }
+        
+        //Nút chuyển trang tiếp theo
+        if (Model.CurrentPage < Model.PageCount)
+        {
+            <button form="searchForm" class="btn btn-dark text-white" name="@Model.ParamName" value="@(Model.CurrentPage + 1)">
+                &raquo;
+            </button>
+        }
+    }
+</div>
