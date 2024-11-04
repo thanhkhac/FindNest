@@ -23,7 +23,7 @@
         {
             <tr>
                 <td>
-                    <input type="checkbox" class="form-check-input" value="@post.Id">
+                    <input type="checkbox" name="@nameof(Model.DeleteIds)" form="deleteForm" class="form-check-input" value="@post.Id">
                 </td>
                 <td  >
                     <div class="text-truncate line-clamp text-wrap" style="max-width: 400px;">
@@ -44,6 +44,14 @@
             </tr>
         }
     </table>
+    <div>
+        <button form="deleteForm" class="btn-danger btn">
+            Xóa
+        </button>
+    </div>
+    <form id="deleteForm" method="post" asp-page-handler="delete">
+        <input type="hidden" asp-for="Params.CurrentPage">
+    </form>
     <form method="get" id="paginationForm">
         <partial name="Shared/_PaginationPartial" model="Model.PaginationPm"/>
     </form>

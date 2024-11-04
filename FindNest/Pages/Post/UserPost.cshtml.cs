@@ -27,11 +27,16 @@ namespace FindNest.Pages.Post
         [BindProperty(SupportsGet = true)]
         public RentPostSearchParams Params { get; set; } = new();
         
-        [BindProperty()]
+        [BindProperty]
         public List<int> DeleteIds { get; set; } = new();
 
 
         public void OnGet()
+        {
+            Load();
+        }
+        
+        private void Load()
         {
             var userId = _userManager.GetUserId(User);
             Console.WriteLine(userId);
@@ -47,9 +52,10 @@ namespace FindNest.Pages.Post
             };
         }
         
-        public void OnDelete()
+        public void  OnPostDelete()
         {
-            
+            Console.WriteLine(DeleteIds.Count);
+            Load();
         }    
     }
 }

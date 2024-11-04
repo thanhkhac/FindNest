@@ -19,6 +19,7 @@ namespace FindNest.Repositories
         void Add(RentPost rentPost);
         void Update(RentPost rentPost);
         void Delete(int id);
+        void Delete(List<int> ids);
 
         IEnumerable<RentCategory> GetAllRentCategories();
         IEnumerable<RentPost> GetLikedPost(LikedPostSearchParam searchParams, out int TotalCount);
@@ -134,6 +135,11 @@ namespace FindNest.Repositories
         }
 
 
+        public void Delete(List<int> ids)
+        {
+            
+        }
+        
         public IEnumerable<RentCategory> GetAllRentCategories()
         {
             return _context.RentCategories.ToList();
