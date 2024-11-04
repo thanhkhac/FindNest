@@ -43,7 +43,7 @@
     </div>
     <div class="col-lg-8 p-0 p-4 border rounded mt-4">
         <div class="fs-5 fw-bold">
-            Tổng số kết quả: @Model.TotalCount kết quả
+            Tổng số kết quả: @Model.PaginationPm.TotalCount kết quả
         </div>
         <partial name="Shared/_RentPostListPartial" model="Model.RentPost"/>
         <partial name="Shared/_PaginationPartial" model="Model.PaginationPm"/>

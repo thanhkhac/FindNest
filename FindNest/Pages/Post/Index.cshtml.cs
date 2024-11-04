@@ -16,12 +16,11 @@ namespace FindNest.Pages.Post
 {
     public class IndexModel : PageModel
     {
-        // private readonly FindNest.Data.FindNestDbContext _context;
         private readonly IRentPostRepository _rentPostRepository;
         private readonly IRegionRepository _regionRepository;
 
 
-        public IndexModel(FindNest.Data.FindNestDbContext context, IRentPostRepository rentPostRepository, IRegionRepository regionRepository)
+        public IndexModel(IRentPostRepository rentPostRepository, IRegionRepository regionRepository)
         {
             // _context = context;
             _rentPostRepository = rentPostRepository;
@@ -30,20 +29,31 @@ namespace FindNest.Pages.Post
 
         [BindProperty(SupportsGet = true)]
         public RentPostSearchParams Params { get; set; } = new();
+        public PaginationPm PaginationPm { get; set; } = default!;
 
         public IList<RentPost> RentPost { get; set; } = default!;
-
-        public PaginationPm PaginationPm { get; set; }
-
-        public int TotalCount { get; set; }
-        // public int PageCount { get; set; }
-
-        public List<RentCategory> RentCategories;
+        public List<RentCategory> RentCategories = new();
         public List<Region> CityRegions = new();
         public List<Region> DistrictRegions = new();
         public List<Region> WardRegions = new();
         public List<Region> SelectedRegions = new();
-        public void Load()
+        
+        public Task<IActionResult> OnGetAsync()
+        {
+            Load();
+            RentPost = _rentPostRepository.Search(Params, out int count).ToList();
+            PaginationPm = new PaginationPm
+            {
+                ParamName = nameof(Params) + "." + nameof(Params.CurrentPage),
+                PageCount = (int)Math.Ceiling((double)count / Params.PageSize),
+                CurrentPage = Params.CurrentPage,
+                TotalCount = count,
+                FormName = "searchForm"
+            };
+            return Task.FromResult<IActionResult>(Page());
+        }
+        
+        private void Load()
         {
             RentCategories = _rentPostRepository.GetAllRentCategories().ToList();
             CityRegions = _regionRepository.GetChildRegions(null);
@@ -56,25 +66,6 @@ namespace FindNest.Pages.Post
                 if (city != null) { DistrictRegions = _regionRepository.GetChildRegions(city.Id); }
                 if (district != null) { WardRegions = _regionRepository.GetChildRegions(district.Id); }
             }
-        }
-
-        public async Task<IActionResult> OnGetAsync()
-        {
-            Load();
-            RentPost = _rentPostRepository.Search(Params, out int count).ToList();
-            TotalCount = count;
-            
-            
-            PaginationPm = new PaginationPm
-            {
-                ParamName = nameof(Params) + "." + nameof(Params.CurrentPage),
-                PageCount = (int)Math.Ceiling((double)count / Params.PageSize),
-                CurrentPage = Params.CurrentPage
-            };
-            
-            
-            
-            return Page();
         }
     }
 }

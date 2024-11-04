@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FindNest.Migrations
 {
     [DbContext(typeof(FindNestDbContext))]
-    [Migration("20241101044333_Add index")]
-    partial class Addindex
+    [Migration("20241104031415_Add IsApproved Field")]
+    partial class AddIsApprovedField
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -180,6 +180,9 @@ namespace FindNest.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsApproved")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");

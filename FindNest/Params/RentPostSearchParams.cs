@@ -1,4 +1,6 @@
-﻿namespace FindNest.Params
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+
+namespace FindNest.Params
 {
     public class RentPostSearchParams : SearchParams
     {
@@ -13,6 +15,8 @@
         public string? Address { get; set; }
         public bool IsNegotiatedPrice { get; set; } = true;
         public bool IsPriceMinMaxFilter { get; set; } = true;
+        [BindNever] 
+        public string? UserId  { get; set; } 
 
         public override string ToString()
         {

@@ -38,19 +38,19 @@ namespace FindNest.Repositories
         public IEnumerable<RentPost> GetLikedPost(LikedPostSearchParam searchParams, out int TotalCount)
         {
             var query = _context.Likes
-            .Include(x=>x.RentPost.RentPostRooms)
-            .Include(x=>x.RentPost.CreatedUser)
-            .Include(x=>x.RentPost.RentCategory)
-            .OrderByDescending(x=>x.LikedDate)
-            .Where(x=>x.UserId.Equals(searchParams.UserId))
-            .Select(x=>x.RentPost);
-            
+                .Include(x => x.RentPost.RentPostRooms)
+                .Include(x => x.RentPost.CreatedUser)
+                .Include(x => x.RentPost.RentCategory)
+                .OrderByDescending(x => x.LikedDate)
+                .Where(x => x.UserId.Equals(searchParams.UserId))
+                .Select(x => x.RentPost);
+
             TotalCount = query.Count();
-            
+
             var rentPosts = query.Skip((searchParams.CurrentPage - 1) * searchParams.PageSize)
                 .Take(searchParams.PageSize)
                 .ToList();
-                
+
             foreach (var rentPost in rentPosts)
             {
                 rentPost.RegionAddress = rentPost.RegionId != null ? _regionRepository.GetAddress((int)rentPost.RegionId) : null;
@@ -112,6 +112,9 @@ namespace FindNest.Repositories
                     var childRegions = _regionRepository.GetChildRegionsRecursive(regionId).Select(x => x.Id).ToList();
                     query = query.Where(x => childRegions.Contains((int)x.RegionId));
                 }
+
+                //UserId
+                if (searchParams.UserId != null) { query = query.Where(x => x.CreatedBy != null && x.CreatedBy.Equals(searchParams.UserId)); }
             }
             totalCount = query.Count();
             Console.WriteLine(totalCount);
@@ -124,10 +127,7 @@ namespace FindNest.Repositories
 
             foreach (var rentPost in rentPosts)
             {
-                if (rentPost.RegionId != null )
-                {
-                    rentPost.RegionAddress = _regionRepository.GetAddress((int)rentPost.RegionId);
-                }
+                if (rentPost.RegionId != null) { rentPost.RegionAddress = _regionRepository.GetAddress((int)rentPost.RegionId); }
             }
 
             return rentPosts;
@@ -142,17 +142,19 @@ namespace FindNest.Repositories
 
         public RentPost? GetById(int id)
         {
-            var query =
-                _context.RentPosts
-                    .Include(x => x.Mediae)
-                    .Include(x => x.RentPostRooms)
-                    .Include(x => x.RentCategory)
-                    .Include(rentPost => rentPost.Region).AsQueryable();
-            var x = query.FirstOrDefault(x => x.Id == id);
-            
-            x.RegionAddress = x.RegionId != null ? _regionRepository.GetAddress((int)x.RegionId) : null;
-            return x;
+            var rentPost = _context.RentPosts
+                .Include(post => post.Mediae)
+                .Include(post => post.RentPostRooms)
+                .Include(post => post.RentCategory)
+                .Include(post => post.Region)
+                .FirstOrDefault(post => post.Id == id);
+            if (rentPost == null) { return null; }
+            rentPost.RegionAddress = rentPost.RegionId.HasValue
+                ? _regionRepository.GetAddress(rentPost.RegionId.Value)
+                : null;
+            return rentPost;
         }
+
 
         public void Add(RentPost rentPost)
         {

@@ -8,6 +8,9 @@ namespace FindNest.Data.Models
 {
     [Index(nameof(RentCategoryId))]
     [Index(nameof(CreatedAt))]
+    [Index(nameof(RegionId))]
+    [Index(nameof(IsNegotiatedPrice), nameof(Price))]
+    [Index(nameof(Area))]
     public class RentPost : BaseModel
     {
         [Key]
@@ -33,6 +36,8 @@ namespace FindNest.Data.Models
         public string? Description { get; set; }
         
         public bool IsHidden { get; set; }
+        
+        public bool? IsApproved { get; set; }
         public virtual Region? Region { get; set; }
         public virtual RentCategory? RentCategory { get; set; }
 
