@@ -8,16 +8,16 @@ namespace FindNest.Controllers
     [ApiController]
     public class RegionController : ControllerBase
     {
-        private readonly IRegionRepository _regionRepository;
-        public RegionController(IRegionRepository regionRepository)
+        private readonly IRegionService _regionService;
+        public RegionController(IRegionService regionService)
         {
-            _regionRepository = regionRepository;
+            _regionService = regionService;
         }
 
         [HttpGet]
         public IActionResult Get(int? parentId)
         {
-            var regions =  _regionRepository.GetChildRegions(parentId);
+            var regions =  _regionService.GetChildRegions(parentId);
             return Ok(regions);
         }
     }

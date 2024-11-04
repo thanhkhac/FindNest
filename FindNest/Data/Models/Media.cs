@@ -9,10 +9,10 @@ namespace FindNest.Data.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [ForeignKey("RentPost")]
-        public int? RentPostId { get; set; }
+        public int RentPostId { get; set; }
         public required string MediaType { get; set; }
         public required string Path { get; set; }
         public int? Order { get; set; }
-        public virtual RentPost RentPost { get; set; } 
+        public virtual RentPost? RentPost { get; set; } 
     }
 }

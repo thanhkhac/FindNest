@@ -1,27 +1,22 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Threading.Tasks;
+using FindNest.Attributes;
 using FindNest.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using FindNest.Data.Models;
 using FindNest.Repositories;
-using FindNest.Services;
 using FindNest.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Newtonsoft.Json;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Jpeg;
+using NuGet.Packaging;
+
 
 namespace FindNest.Pages.Post
 {
-    public class RentPostCreateInput
+    public class RentPostUpdateInput
     {
         [DisplayName("Tiêu đề")]
         [Required(ErrorMessage = "Vui lòng nhập tiêu đề", AllowEmptyStrings = false)]
@@ -39,7 +34,7 @@ namespace FindNest.Pages.Post
         [DisplayName("Giá")]
         [Range(0, 10_000_000_000, ErrorMessage = "Giá tiền không hợp lệ")]
         // [Required(ErrorMessage = "Vui lòng nhập giá phòng", AllowEmptyStrings = false)]
-        public long? Price { get; set; } = 0;
+        public long Price { get; set; } = 0;
 
         [DisplayName("Diện tích")]
         [Range(0, int.MaxValue, ErrorMessage = "Diện tích không hợp lệ")]
@@ -57,9 +52,13 @@ namespace FindNest.Pages.Post
         public string? Thumbnail { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn ảnh")]
-        public List<IFormFile>? Images { get; set; } = new List<IFormFile>();
+        public List<IFormFile>? NewImages { get; set; } = new List<IFormFile>();
 
-        public List<int> FileIndex { get; set; }
+        public List<string> OldImagePaths { get; set; } = new List<string>();
+
+
+        public List<int> NewFileIndex { get; set; } = new ();
+        public List<int> OldFileIndex { get; set; } = new ();
 
         [Range(0, int.MaxValue, ErrorMessage = "Số phòng tắm, nhà vệ sinh không hợp lệ")]
         [DisplayName("Số phòng tắm, vệ sinh")]
@@ -74,10 +73,13 @@ namespace FindNest.Pages.Post
         [MaxLength(10_000)]
         [DisplayName("Mô tả")]
         public string? Description { get; set; }
+
+        public int? Id { get; set; }
     }
 
     [Authorize]
-    public class CreateModel : PageModel
+    [AuthorizeRentPostOwner]
+    public class UpdateModel : PageModel
     {
         private readonly Data.FindNestDbContext _context;
         private readonly IRentPostService _rentPostService;
@@ -91,7 +93,7 @@ namespace FindNest.Pages.Post
         public List<Region> WardRegions { get; set; } = new();
         public List<Region> SelectedRegions { get; set; } = new();
 
-        public CreateModel(FindNest.Data.FindNestDbContext context, IRentPostService rentPostService, IRegionService regionService,
+        public UpdateModel(Data.FindNestDbContext context, IRentPostService rentPostService, IRegionService regionService,
             UserManager<User> userManager, IFileService fileService)
         {
             _context = context;
@@ -102,16 +104,16 @@ namespace FindNest.Pages.Post
         }
 
         [BindProperty]
-        public RentPostCreateInput RentPost { get; set; } = new();
+        public RentPostUpdateInput UpdateInput { get; set; } = new();
 
 
         public void Load()
         {
             RentCategories = _rentPostService.GetAllRentCategories().ToList();
             CityRegions = _regionService.GetChildRegions(null);
-            if (RentPost.RegionId != null)
+            if (UpdateInput.RegionId != null)
             {
-                SelectedRegions = _regionService.GetParentRegionsRecursive((int)RentPost.RegionId);
+                SelectedRegions = _regionService.GetParentRegionsRecursive((int)UpdateInput.RegionId);
                 var city = SelectedRegions.FirstOrDefault(x => x.Level == 1);
                 var district = SelectedRegions.FirstOrDefault(x => x.Level == 2);
                 var ward = SelectedRegions.FirstOrDefault(x => x.Level == 3);
@@ -121,76 +123,101 @@ namespace FindNest.Pages.Post
             ViewData["RentCategoryId"] = new SelectList(_context.RentCategories, "Id", "Name");
         }
 
-        public IActionResult OnGet()
+        public IActionResult OnGet(int id)
         {
+            RentPost rentPost = _rentPostService.GetById(id)!;
+            UpdateInput = new RentPostUpdateInput
+            {
+                Title = rentPost.Title,
+                RegionId = rentPost.RegionId,
+                RentCategoryId = rentPost.RentCategoryId,
+                Price = rentPost.Price,
+                Area = rentPost.Area,
+                Address = rentPost.Address,
+                IsNegotiatedPrice = rentPost.IsNegotiatedPrice,
+                Thumbnail = rentPost.Thumbnail,
+                BathroomQuantity = rentPost.BathRoomCount,
+                BedroomQuantity = rentPost.BedRoomCount,
+                Description = rentPost.Description,
+                OldImagePaths = rentPost.Mediae.OrderBy(x=>x.Order).Select(x => x.Path).ToList(),
+                Id = id
+            };
             Load();
             return Page();
         }
 
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult?> OnPostAsync()
         {
             Load();
             if (!ModelState.IsValid) { return Page(); }
-            var formFiles = RentPost.Images;
+            var formFiles = UpdateInput.NewImages;
             var user = await _userManager.GetUserAsync(User);
-            if (formFiles != null)
+
+            //Ảnh mới
+            List<string> listPaths = await _fileService.SaveImagesAsync(formFiles, FolderConst.UserUploadFolder);
+            var mediaList = listPaths.Select((x, index) => new Media
             {
-                List<string> listPaths = await _fileService.SaveImagesAsync(formFiles, FolderConst.UserUploadFolder);
-                var mediaList = listPaths.Select((x, index) => new Media
+                MediaType = MediaTypeConst.Image,
+                Path = x,
+                Order = UpdateInput.NewFileIndex.ElementAt(index),
+            }).ToList();
+
+            List<RentPostRoom> postRooms = new List<RentPostRoom>();
+            if (UpdateInput.BathroomQuantity > 0)
+            {
+                postRooms.Add(new RentPostRoom
                 {
-                    MediaType = MediaTypeConst.Image,
-                    Path = x,
-                    Order = RentPost.FileIndex.ElementAt(index),
-                }).ToList();
-
-                List<RentPostRoom> postRooms = new List<RentPostRoom>();
-                if (RentPost.BathroomQuantity > 0)
-                {
-                    postRooms.Add(new RentPostRoom
-                    {
-                        RoomId = RoomConst.Bathroom,
-                        Quantity = RentPost.BathroomQuantity
-                    });
-                }
-
-                if (RentPost.BedroomQuantity > 0)
-                {
-                    postRooms.Add(new RentPostRoom
-                    {
-                        RoomId = RoomConst.Bedroom,
-                        Quantity = RentPost.BedroomQuantity
-                    });
-                }
-
-                RentPost newRentPost = new RentPost
-                {
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    CreatedBy = user!.Id,
-                    UpdatedBy = user.Id,
-                    IsDeleted = false,
-                    Title = RentPost.Title,
-                    RegionId = RentPost.RegionId,
-                    RentCategoryId = RentPost.RentCategoryId,
-                    Price = RentPost.Price.Value,
-                    Area = RentPost.Area.Value,
-                    Address = RentPost.Address,
-                    IsNegotiatedPrice = RentPost.IsNegotiatedPrice,
-                    Thumbnail = RentPost.Thumbnail,
-                    IsHidden = false,
-                    RentPostRooms = postRooms,
-                    Mediae = mediaList,
-                    RegionAddress = RentPost.Address
-                };
-                if (newRentPost.Thumbnail == null && listPaths.Count > 0) { newRentPost.Thumbnail = listPaths.First(); }
-
-                _context.RentPosts.Add(newRentPost);
-                await _context.SaveChangesAsync();
-
-                return RedirectToPage("Details", new { id = newRentPost.Id });
+                    RoomId = RoomConst.Bathroom,
+                    Quantity = UpdateInput.BathroomQuantity
+                });
             }
-            return null;
+
+            if (UpdateInput.BedroomQuantity > 0)
+            {
+                postRooms.Add(new RentPostRoom
+                {
+                    RoomId = RoomConst.Bedroom,
+                    Quantity = UpdateInput.BedroomQuantity
+                });
+            }
+
+            RentPost oldRentPost = _rentPostService.GetById(UpdateInput.Id.Value)!;
+            oldRentPost.UpdatedAt = DateTime.Now;
+            oldRentPost.UpdatedBy = user.Id;
+            oldRentPost.Title = UpdateInput.Title;
+            oldRentPost.RegionId = UpdateInput.RegionId;
+            oldRentPost.RentCategoryId = UpdateInput.RentCategoryId;
+            oldRentPost.Price = UpdateInput.Price;
+            oldRentPost.Area = UpdateInput.Area.Value;
+            oldRentPost.Address = UpdateInput.Address;
+            oldRentPost.IsNegotiatedPrice = UpdateInput.IsNegotiatedPrice;
+            oldRentPost.Thumbnail = UpdateInput.Thumbnail;
+            oldRentPost.RentPostRooms = postRooms;
+            oldRentPost.RegionAddress = UpdateInput.Address;
+
+            var oldFilePaths = UpdateInput.OldImagePaths;
+            var deleteFiles = oldRentPost.Mediae.Where(x => !oldFilePaths.Contains(x.Path)).ToList();
+            var deleteFilePaths = deleteFiles.Select(x => x.Path).ToList();
+
+            foreach (var file in deleteFiles)
+            {
+                oldRentPost.Mediae.Remove(file);
+            }
+            for (int i = 0; i < oldFilePaths.Count; i++)
+            {
+                var media = oldRentPost.Mediae.FirstOrDefault(x=>x.Path.Equals(oldFilePaths[i]));
+                media.Order = UpdateInput.OldFileIndex[i];
+            }
+            oldRentPost.Mediae.AddRange(mediaList);
+
+            if (oldRentPost.Thumbnail == null && listPaths.Count > 0) { oldRentPost.Thumbnail = listPaths.First(); }
+
+            _context.RentPosts.Update(oldRentPost);
+            await _context.SaveChangesAsync();
+            await _fileService.DeleteFileAsync(deleteFilePaths);
+            
+            return RedirectToPage("Details", new { id = oldRentPost.Id });
         }
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FindNest.Repositories
 {
-    public interface IRegionRepository
+    public interface IRegionService
     {
         List<Region> GetChildRegionsRecursive(int? parentId);
         string GetAddress(int id);
@@ -13,11 +13,11 @@ namespace FindNest.Repositories
         List<Region> GetParentRegionsRecursive(int id);
     }
 
-    public class RegionRepository : IRegionRepository
+    public class RegionService : IRegionService
     {
         private readonly FindNest.Data.FindNestDbContext _context;
         
-        public RegionRepository(FindNestDbContext context)
+        public RegionService(FindNestDbContext context)
         {
             _context = context;
         }

@@ -1,12 +1,14 @@
 ﻿using FindNest.Data;
 using FindNest.Data.Models;
 using FindNest.Params;
+using FindNest.Services;
+using FindNest.Utilities;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace FindNest.Repositories
 {
-    public interface IRentPostRepository
+    public interface IRentPostService
     {
         // Task<IEnumerable<RentPost>> SearchAsync();
         // Task<RentPost?> GetByIdAsync();
@@ -20,20 +22,23 @@ namespace FindNest.Repositories
         void Update(RentPost rentPost);
         void Delete(int id);
         void Delete(List<int> ids);
+        void Delete(List<int> ids, string userId);
 
         IEnumerable<RentCategory> GetAllRentCategories();
         IEnumerable<RentPost> GetLikedPost(LikedPostSearchParam searchParams, out int TotalCount);
     }
 
-    public class RentPostRepository : IRentPostRepository
+    public class RentPostService : IRentPostService
     {
         private readonly FindNest.Data.FindNestDbContext _context;
-        private readonly IRegionRepository _regionRepository;
+        private readonly IRegionService _regionService;
+        private readonly IFileService _fileService;
 
-        public RentPostRepository(FindNestDbContext context, IRegionRepository regionRepository)
+        public RentPostService(FindNestDbContext context, IRegionService regionService, IFileService fileService)
         {
             _context = context;
-            _regionRepository = regionRepository;
+            _regionService = regionService;
+            _fileService = fileService;
         }
 
         public IEnumerable<RentPost> GetLikedPost(LikedPostSearchParam searchParams, out int TotalCount)
@@ -54,7 +59,7 @@ namespace FindNest.Repositories
 
             foreach (var rentPost in rentPosts)
             {
-                rentPost.RegionAddress = rentPost.RegionId != null ? _regionRepository.GetAddress((int)rentPost.RegionId) : null;
+                rentPost.RegionAddress = rentPost.RegionId != null ? _regionService.GetAddress((int)rentPost.RegionId) : null;
             }
             return rentPosts;
         }
@@ -110,7 +115,7 @@ namespace FindNest.Repositories
                 if (searchParams.RegionId != null)
                 {
                     int regionId = (int)searchParams.RegionId;
-                    var childRegions = _regionRepository.GetChildRegionsRecursive(regionId).Select(x => x.Id).ToList();
+                    var childRegions = _regionService.GetChildRegionsRecursive(regionId).Select(x => x.Id).ToList();
                     query = query.Where(x => childRegions.Contains((int)x.RegionId));
                 }
 
@@ -128,7 +133,7 @@ namespace FindNest.Repositories
 
             foreach (var rentPost in rentPosts)
             {
-                if (rentPost.RegionId != null) { rentPost.RegionAddress = _regionRepository.GetAddress((int)rentPost.RegionId); }
+                if (rentPost.RegionId != null) { rentPost.RegionAddress = _regionService.GetAddress((int)rentPost.RegionId); }
             }
 
             return rentPosts;
@@ -137,9 +142,49 @@ namespace FindNest.Repositories
 
         public void Delete(List<int> ids)
         {
-            
+            var deletePosts = _context.RentPosts.Where(x => ids.Contains(x.Id));
+            var deleteRentPostRooms = _context.RentPostRooms.Where(x => ids.Contains(x.RentPostId));
+            var deleteMedias = _context.Media.Where(x => ids.Contains(x.RentPostId)).ToList();
+            var deleteMediaPaths = deleteMedias.Select(x => x.Path).ToList();
+
+            _context.Media.RemoveRange(deleteMedias);
+            _context.RentPostRooms.RemoveRange(deleteRentPostRooms);
+            _context.RentPosts.RemoveRange(deletePosts);
+            _context.SaveChanges();
+
+            _fileService.DeleteFileAsync(deleteMediaPaths);
         }
-        
+
+        public void Delete(List<int> ids, string userId)
+        {
+            var deletePosts = _context.RentPosts.Where(x => x.CreatedBy != null && ids.Contains(x.Id) && x.CreatedBy.Equals(userId));
+            var deleteRentPostRooms = _context.RentPostRooms.Where(x => ids.Contains(x.RentPostId));
+            var deleteMedias = _context.Media.Where(x => ids.Contains(x.RentPostId)).ToList();
+            var deleteMediaPaths = deleteMedias.Select(x => x.Path).ToList();
+
+            _context.Media.RemoveRange(deleteMedias);
+            _context.RentPostRooms.RemoveRange(deleteRentPostRooms);
+            _context.RentPosts.RemoveRange(deletePosts);
+            _context.SaveChanges();
+
+            _fileService.DeleteFileAsync(deleteMediaPaths);
+        }
+
+        public List<RentPost> GetByUserId(string id)
+        {
+            var rentPosts = _context.RentPosts
+                .Include(post => post.Mediae)
+                .Include(post => post.RentPostRooms)
+                .Include(post => post.RentCategory)
+                .Include(post => post.Region)
+                .Where(post => post.CreatedBy == id).ToList();
+            foreach (var rentPost in rentPosts)
+            {
+                if (rentPost.RegionId != null) { rentPost.RegionAddress = _regionService.GetAddress((int)rentPost.RegionId); }
+            }
+            return rentPosts;
+        }
+
         public IEnumerable<RentCategory> GetAllRentCategories()
         {
             return _context.RentCategories.ToList();
@@ -156,7 +201,7 @@ namespace FindNest.Repositories
                 .FirstOrDefault(post => post.Id == id);
             if (rentPost == null) { return null; }
             rentPost.RegionAddress = rentPost.RegionId.HasValue
-                ? _regionRepository.GetAddress(rentPost.RegionId.Value)
+                ? _regionService.GetAddress(rentPost.RegionId.Value)
                 : null;
             return rentPost;
         }

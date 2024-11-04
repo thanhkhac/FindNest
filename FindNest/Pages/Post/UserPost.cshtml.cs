@@ -12,12 +12,12 @@ namespace FindNest.Pages.Post
     [Authorize]
     public class UserPost : PageModel
     {
-        private readonly IRentPostRepository _rentPostRepository;
+        private readonly IRentPostService _rentPostService;
         private readonly UserManager<User> _userManager;
         
-        public UserPost(IRentPostRepository rentPostRepository, UserManager<User> userManager)
+        public UserPost(IRentPostService rentPostService, UserManager<User> userManager)
         {
-            _rentPostRepository = rentPostRepository;
+            _rentPostService = rentPostService;
             _userManager = userManager;
         }
         
@@ -39,8 +39,8 @@ namespace FindNest.Pages.Post
         private void Load()
         {
             var userId = _userManager.GetUserId(User);
-            Console.WriteLine(userId);
-            RentPosts = _rentPostRepository.Search(Params, out int count).ToList();
+            Params.UserId = userId;
+            RentPosts = _rentPostService.Search(Params, out int count).ToList();
             
             PaginationPm = new PaginationPm
             {
@@ -54,7 +54,8 @@ namespace FindNest.Pages.Post
         
         public void  OnPostDelete()
         {
-            Console.WriteLine(DeleteIds.Count);
+            var userId = _userManager.GetUserId(User);
+            if (userId != null) _rentPostService.Delete(DeleteIds, userId);
             Load();
         }    
     }

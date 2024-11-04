@@ -1,4 +1,4 @@
-﻿namespace FindNest.Ultilities
+﻿namespace FindNest.Utilities
 {
     public static class Ultilities
     {

@@ -16,15 +16,15 @@ namespace FindNest.Pages.Post
 {
     public class IndexModel : PageModel
     {
-        private readonly IRentPostRepository _rentPostRepository;
-        private readonly IRegionRepository _regionRepository;
+        private readonly IRentPostService _rentPostService;
+        private readonly IRegionService _regionService;
 
 
-        public IndexModel(IRentPostRepository rentPostRepository, IRegionRepository regionRepository)
+        public IndexModel(IRentPostService rentPostService, IRegionService regionService)
         {
             // _context = context;
-            _rentPostRepository = rentPostRepository;
-            _regionRepository = regionRepository;
+            _rentPostService = rentPostService;
+            _regionService = regionService;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -41,7 +41,7 @@ namespace FindNest.Pages.Post
         public Task<IActionResult> OnGetAsync()
         {
             Load();
-            RentPost = _rentPostRepository.Search(Params, out int count).ToList();
+            RentPost = _rentPostService.Search(Params, out int count).ToList();
             PaginationPm = new PaginationPm
             {
                 ParamName = nameof(Params) + "." + nameof(Params.CurrentPage),
@@ -55,16 +55,16 @@ namespace FindNest.Pages.Post
         
         private void Load()
         {
-            RentCategories = _rentPostRepository.GetAllRentCategories().ToList();
-            CityRegions = _regionRepository.GetChildRegions(null);
+            RentCategories = _rentPostService.GetAllRentCategories().ToList();
+            CityRegions = _regionService.GetChildRegions(null);
             if (Params.RegionId != null)
             {
-                SelectedRegions = _regionRepository.GetParentRegionsRecursive((int)Params.RegionId);
+                SelectedRegions = _regionService.GetParentRegionsRecursive((int)Params.RegionId);
                 var city = SelectedRegions.FirstOrDefault(x => x.Level == 1);
                 var district = SelectedRegions.FirstOrDefault(x => x.Level == 2);
                 var ward = SelectedRegions.FirstOrDefault(x => x.Level == 3);
-                if (city != null) { DistrictRegions = _regionRepository.GetChildRegions(city.Id); }
-                if (district != null) { WardRegions = _regionRepository.GetChildRegions(district.Id); }
+                if (city != null) { DistrictRegions = _regionService.GetChildRegions(city.Id); }
+                if (district != null) { WardRegions = _regionService.GetChildRegions(district.Id); }
             }
         }
     }

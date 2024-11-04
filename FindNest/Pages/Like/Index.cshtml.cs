@@ -11,15 +11,15 @@ namespace FindNest.Pages.Like
     [Authorize]
     public class Index : PageModel
     {
-        private readonly IRentPostRepository _rentPostRepository;
+        private readonly IRentPostService _rentPostService;
         private readonly UserManager<User> _userManager;
-        public Index(IRentPostRepository rentPostRepository, UserManager<User> userManager)
+        public Index(IRentPostService rentPostService, UserManager<User> userManager)
         {
-            _rentPostRepository = rentPostRepository;
+            _rentPostService = rentPostService;
             _userManager = userManager;
         }
         
-        public List<RentPost> RentPosts { get; set; }
+        public List<RentPost> RentPosts { get; set; } = new();
         
         public int PageCount { get; set; }
         [BindProperty(SupportsGet = true)]
@@ -29,7 +29,7 @@ namespace FindNest.Pages.Like
         {
             var user = await _userManager.GetUserAsync(User);
             SearchParam.UserId = user.Id;
-            RentPosts = _rentPostRepository.GetLikedPost(SearchParam, out int count).ToList();
+            RentPosts = _rentPostService.GetLikedPost(SearchParam, out int count).ToList();
             PageCount = (int)Math.Ceiling((double)count / SearchParam.PageSize);
         }
     }

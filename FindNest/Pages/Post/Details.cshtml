@@ -1,5 +1,5 @@
 @page
-@using Ultilities
+@using FindNest.Utilities
 @model FindNest.Pages.Post.DetailsModel
 
 @{
@@ -20,7 +20,8 @@
                     @* </div> *@
                     <div class="carousel-inner h-100 bg-black rounded-3">
                         @{ bool isFirst = true; }
-                        @foreach (var item in @Model.RentPost.Mediae)
+                        @{var media = @Model.RentPost.Mediae.OrderBy(x =>x.Order);}
+                        @foreach (var item in media)
                         {
                             <div class="carousel-item @(isFirst ? "active" : "") h-100">
                                 <img style="object-fit: contain" src="@item.Path" class="d-block w-100 h-100" alt="...">
@@ -38,12 +39,12 @@
                     </button>
                 </div>
                 <div class="row m-0 mt-2 flex-nowrap overflow-scroll mx-auto @(Model.RentPost.Mediae.Count < 6 ? " justify-content-center" : "")" style="height: 100px">
-                    @for (int i = 0; i < Model.RentPost.Mediae.Count; i++)
+                    @for (int i = 0; i < media.Count(); i++)
                     {
                         <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@i"
                                 class="@(i == 0 ? "active" : "") col-2 btn border p-0 h-100"
                                 aria-current="true" aria-label="Slide @i">
-                            <img src="@Model.RentPost.Mediae.ElementAt(i).Path" class="w-100 h-100 bg-black rounded-3" style="object-fit: contain" alt="">
+                            <img src="@media.ElementAt(i).Path" class="w-100 h-100 bg-black rounded-3" style="object-fit: contain" alt="">
                         </button>
                     }
                 </div>

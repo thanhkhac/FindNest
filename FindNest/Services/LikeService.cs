@@ -7,11 +7,11 @@ namespace FindNest.Repositories
     {
         List<int> GetUserLikedPostId(string userId);
     }
-    public class LikeRepository : ILikeRepository
+    public class LikeService : ILikeRepository
     {
         private readonly FindNestDbContext _context;
         
-        public LikeRepository(FindNestDbContext context)
+        public LikeService(FindNestDbContext context)
         {
             _context = context;
         }

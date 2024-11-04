@@ -1,9 +1,9 @@
-﻿    function previewImages(inputFiles, displayTarget, indexInputName) {
+﻿function previewImages(inputFiles, displayTarget, indexInputName, indexClassName) {
     const files = inputFiles.files;
 
-    $.each(files, function(index, file) {
+    $.each(files, function (index, file) {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             const imgContainer = $('<div class="sortable-img position-relative"></div>');
             const img = $('<img>').attr('src', e.target.result).addClass('h-100 rounded');
 
@@ -24,13 +24,14 @@
                 type: 'hidden',
                 name: indexInputName, // Tên để gửi chỉ số
                 value: '', // Giá trị sẽ được cập nhật sau
+                class: 'FileIndex'
             });
 
             // Tạo nút xóa
             const removeBtn = $('<button class="btn btn-dark opacity-75 rounded-circle position-absolute py-0 px-2 top-0 end-0">x</button>');
 
             // Thêm sự kiện xóa cho nút
-            removeBtn.on('click', function() {
+            removeBtn.on('click', function () {
                 imgContainer.remove(); // Xóa hình ảnh và ô input
                 updateIndexInputs(); // Cập nhật lại chỉ số sau khi xóa
             });
@@ -50,7 +51,7 @@
         items: '.sortable-img', // Các phần tử có thể kéo
         cursor: 'move', // Con trỏ khi kéo
         placeholder: 'sortable-placeholder', // Placeholder khi kéo
-        update: function(event, ui) {
+        update: function (event, ui) {
             // Cập nhật chỉ số cho các ô input hidden sau khi thay đổi thứ tự
             updateIndexInputs();
         }
@@ -58,12 +59,13 @@
 
     // Hàm cập nhật chỉ số cho các ô input hidden
     function updateIndexInputs() {
-        $(displayTarget).children().each(function() {
+        $(displayTarget).children().each(function () {
             // Lấy chỉ số của phần tử hiện tại so với tất cả các phần tử con
             const index = $(this).index();
             console.log(indexInputName)
             console.log(index)
-            $(this).find('input[type="hidden"][name="' + indexInputName + '"]').val(index);
+            $(this).find('input[type="hidden"].' + indexClassName).val(index);
         });
     }
 }
+

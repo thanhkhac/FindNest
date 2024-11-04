@@ -15,14 +15,14 @@ namespace FindNest.Pages.Post
     public class DetailsModel : PageModel
     {
         private readonly FindNest.Data.FindNestDbContext _context;
-        private readonly IRentPostRepository _rentPostRepository;
+        private readonly IRentPostService _rentPostService;
         
         
 
-        public DetailsModel(FindNest.Data.FindNestDbContext context, IRentPostRepository rentPostRepository)
+        public DetailsModel(FindNest.Data.FindNestDbContext context, IRentPostService rentPostService)
         {
             _context = context;
-            _rentPostRepository = rentPostRepository;
+            _rentPostService = rentPostService;
         }
 
         public RentPost RentPost { get; set; } = default!;
@@ -36,7 +36,7 @@ namespace FindNest.Pages.Post
             {
                 return NotFound();
             }
-            var rentpost = _rentPostRepository.GetById(id.Value);
+            var rentpost = _rentPostService.GetById(id.Value);
             if (rentpost == null)
             {
                 return NotFound();
@@ -49,7 +49,7 @@ namespace FindNest.Pages.Post
                     RentPostSearchParams searchParams = new RentPostSearchParams();
                     searchParams.RegionId = rentpost.RegionId;
                     searchParams.PageSize = 5;
-                    RentPostsInRegion = _rentPostRepository.Search(searchParams, out int count).ToList();
+                    RentPostsInRegion = _rentPostService.Search(searchParams, out int count).ToList();
                 }
             }
             return Page();

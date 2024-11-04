@@ -1,5 +1,6 @@
 ﻿using FindNest.Repositories;
 using FindNest.Services;
+using FindNest.Utilities;
 
 namespace FindNest.Config
 {
@@ -9,9 +10,9 @@ namespace FindNest.Config
         {
             services.AddScoped<IFileService, FileService>();
             
-            services.AddScoped<IRentPostRepository, RentPostRepository>();
-            services.AddScoped<IRegionRepository, RegionRepository>();
-            services.AddScoped<ILikeRepository, LikeRepository>();
+            services.AddScoped<IRentPostService, RentPostService>();
+            services.AddScoped<IRegionService, RegionService>();
+            services.AddScoped<ILikeRepository, LikeService>();
         }
     }
 }
