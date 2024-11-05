@@ -1,18 +1,20 @@
 @page
+@using FindNest.Areas.Identity.Pages.Account.Manage
 @model FindNest.Pages.Post.CreateModel
 
 @{
+    ViewData["ActivePage"] = ManageNavPages.CreatePost;
+    Layout = "/Areas/Identity/Pages/Account/Manage/_Layout.cshtml";
     ViewData["Title"] = "Đăng tin mới";
     var inputStyle = " form-control";
     var labelStyle = "control-label fw-bold ms-1 mb-2 ";
-    Layout = "/Areas/Identity/Pages/Account/Manage/_Layout.cshtml";
+    var fileIndexClass = "FileIndex";
 }
 
 
 <div class="row justify-content-center">
-    <h1 class="text-center pt-2">Đăng tin mới</h1>
-    <hr/>
     <div class="col-md-10 border p-4 rounded-3 ">
+        <h1 class="text-center pt-2 bg-danger rounded-3 text-white py-2">Đăng tin mới</h1>
         <form method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
@@ -190,7 +192,7 @@
             <div class="mt-3">
                 <label asp-for="RentPost.Description" class="@labelStyle"></label>
                 <div>
-                    <textarea asp-for="@Model.RentPost.Description" class="form-control" rows="20"></textarea>
+                    <textarea asp-for="@Model.RentPost.Description" class="form-control" rows="10"></textarea>
                 </div>
             </div>
 
@@ -213,7 +215,7 @@
 </div>
 
 <input class="form-control d-none" asp-for="@Model.RentPost.Images"
-       id="imageUploadInput" onchange="previewImages(this,'#imageUploaded', '@nameof(Model.RentPost).@nameof(Model.RentPost.FileIndex)')" multiple type="file" accept="image/*">
+       id="imageUploadInput" onchange="previewImages(this,'#imageUploaded', '@nameof(Model.RentPost).@nameof(Model.RentPost.FileIndex)', '@fileIndexClass')" multiple type="file" accept="image/*">
 <script>
     bindReadNumberToInput('#inputPrice', '#priceText')
 </script>

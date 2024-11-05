@@ -1,0 +1,183 @@
+﻿@page
+@using FindNest.Areas.Identity.Pages.Account.Manage
+@using FindNest.Constants
+@using FindNest.Utilities
+@inject UserManager<User> UserManager
+@model Index
+
+@{
+    Layout = "/Areas/Identity/Pages/Account/Manage/_Layout.cshtml";
+    ViewData["ActivePage"] = "AdminUserManagement";
+    var currentUser = UserManager.GetUserAsync(User).Result;
+}
+
+<div>
+    @if (!ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <p>@error.ErrorMessage</p>
+            }
+        </div>
+    }
+    <table class="table table-striped align-middle rounded-3 overflow-hidden">
+        <tr class="bg-danger text-white">
+            <th></th>
+            <th>Tên</th>
+            <th>Email</th>
+            <th>Số điện thoại liên hệ</th>
+            <th colspan="3" class="text-center">Hành động</th>
+        </tr>
+        @foreach (var user in Model.Users)
+        {
+            <tr>
+                <td>
+                    <input type="checkbox" name="@nameof(Model.Ids)" form="deleteOrProcessForm" class="form-check-input" value="@user.Id">
+                </td>
+                <td>
+                    <div class="text-truncate line-clamp text-wrap" style="max-width: 200px;">
+                        @user.FullName
+                    </div>
+                </td>
+                <td>
+                    <div class="text-truncate line-clamp text-wrap" style="max-width: 300px;">
+                        @user.Email
+                    </div>
+                </td>
+                <td>
+                    @user.PhoneNumber
+                </td>
+                <td>
+                    <form method="post" asp-page-handler="deleteOrProcess">
+                        <input type="hidden" asp-for="Params.CurrentPage">
+                        <input type="hidden" name="@nameof(Model.Ids)" value="@user.Id">
+                        <button name="@nameof(Model.Action)" value="deleteAllPost" class="btn-danger btn"
+                                onclick="confirmAction(event, 'Bạn có muốn xóa tất cả bài viết của người dùng này không')">
+                            Xóa tất cả bài viết
+                        </button>
+                    </form>
+                </td>
+                @if (currentUser != null && !user.Id.Equals(currentUser.Id))
+                {
+                    @* <td> *@
+                    @*     <form method="post" asp-page-handler="deleteOrProcess"> *@
+                    @*         <input type="hidden" asp-for="Params.CurrentPage"> *@
+                    @*         <input type="hidden" name="@nameof(Model.Ids)" value="@user.Id"> *@
+                    @*         <button name="@nameof(Model.Action)" value="delete" class="btn-danger btn" *@
+                    @*                 onclick="confirmAction(event, 'Bạn có muốn xóa người dùng này không')"> *@
+                    @*             Xóa *@
+                    @*         </button> *@
+                    @*     </form> *@
+                    @* </td> *@
+                    bool isAdmin = await UserManager.IsInRoleAsync(user, RoleConst.Administrator);
+                    if (isAdmin)
+                    {
+                        <td>
+                            <form method="post" asp-page-handler="deleteOrProcess">
+                                <input type="hidden" asp-for="Params.CurrentPage">
+                                <input type="hidden" name="@nameof(Model.Ids)" value="@user.Id">
+                                <button name="@nameof(Model.Action)" value="disableAdmin" class="btn-primary btn"
+                                        onclick="confirmAction(event, 'Bạn có muốn đặt người dùng này làm quản trị viên không')">
+                                    Gỡ quyền quản trị viên
+                                </button>
+                            </form>
+                        </td>
+                    }else
+                    {
+                        <td>
+                            <form method="post" asp-page-handler="deleteOrProcess">
+                                <input type="hidden" asp-for="Params.CurrentPage">
+                                <input type="hidden" name="@nameof(Model.Ids)" value="@user.Id">
+                                <button name="@nameof(Model.Action)" value="setAdmin" class="btn-primary btn"
+                                        onclick="confirmAction(event, 'Bạn có muốn đặt người dùng này làm quản trị viên không')">
+                                    Ủy quyền quản trị viên
+                                </button>
+                            </form>
+                        </td>
+                    }
+                    if (user.LockoutEnd <= DateTime.Now)
+                    {
+                        <td>
+                            <form method="post" asp-page-handler="deleteOrProcess">
+                                <input type="hidden" asp-for="Params.CurrentPage">
+                                <input type="hidden" name="@nameof(Model.Ids)" value="@user.Id">
+                                <button name="@nameof(Model.Action)" value="ban" class="btn-danger btn"
+                                        onclick="confirmAction(event, 'Bạn có muốn cấm người dùng này không')">
+                                    Cấm
+                                </button>
+                            </form>
+                        </td>
+                    }else
+                    {
+                        <td>
+                            <form method="post" asp-page-handler="deleteOrProcess">
+                                <input type="hidden" asp-for="Params.CurrentPage">
+                                <input type="hidden" name="@nameof(Model.Ids)" value="@user.Id">
+                                <button name="@nameof(Model.Action)" value="unBan" class="btn-danger btn"
+                                        onclick="confirmAction(event, 'Bạn có muốn gỡ cấm người này không')">
+                                    Gỡ cấm
+                                </button>
+                            </form>
+                        </td>
+                    }
+
+                }
+                else
+                {
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                }
+            </tr>
+        }
+    </table>
+    <div class="d-flex gap-3">
+        <button form="deleteOrProcessForm" name="@nameof(Model.Action)" value="delete" class="btn-danger btn">
+            Xóa
+        </button>
+    </div>
+    <form id="deleteOrProcessForm" method="post" asp-page-handler="deleteOrProcess">
+        <input type="hidden" asp-for="Params.CurrentPage">
+    </form>
+    <form method="get" id="paginationForm">
+        <partial name="Shared/_PaginationPartial" model="Model.PaginationPm"/>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Xác nhận hành động khi biểu mẫu deleteOrProcessForm được gửi
+        $('#deleteOrProcessForm').on('submit', function(event) {
+            const selectedIds = $('input[name="Ids"]:checked'); // Đếm số lượng bài viết được chọn
+            const action = $('button[name="Action"]:focus').val(); // Lấy hành động từ nút đang được nhấn
+
+            if (selectedIds.length === 0 && action!=='approveAll') {
+                alert("Vui lòng chọn ít nhất một người dùng.");
+                event.preventDefault(); // Ngăn không gửi biểu mẫu nếu không có bài viết nào được chọn
+                return;
+            }
+
+            // Tạo thông báo xác nhận tùy thuộc vào hành động
+            let confirmationMessage = "";
+            switch (action) {
+                case "delete":
+                    confirmationMessage = `Bạn có muốn xóa ${selectedIds.length} người dùng này không?`;
+                    break;
+            }
+
+            // Hiển thị hộp thoại xác nhận
+            if (!confirm(confirmationMessage)) {
+                event.preventDefault(); // Ngăn không gửi biểu mẫu nếu người dùng chọn "Hủy"
+            }
+        });
+    });
+
+    function confirmAction(event, confirmationMessage) {
+        if (!confirm(confirmationMessage)) {
+            event.preventDefault();
+        }
+    }
+
+
+</script>

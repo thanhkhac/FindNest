@@ -1,9 +1,12 @@
 ﻿@page
+@using FindNest.Areas.Identity.Pages.Account.Manage
 @using FindNest.Utilities
 @model FindNest.Pages.Post.UserPost
 
 @{
     Layout = "/Areas/Identity/Pages/Account/Manage/_Layout.cshtml";
+    ViewData["ActivePage"] = ManageNavPages.UserPost;
+    
 }
 
 <div>
@@ -15,7 +18,7 @@
             @* <th>Loại phòng</th> *@
             @* <th>Giá/Tháng</th> *@
             @* <th>Diện tích</th> *@
-            <th>Ẩn</th>
+            @* <th>Ẩn</th> *@
             <th>Ngày đăng</th>
             <th>Trạng thái</th>
             <th></th>
@@ -26,9 +29,9 @@
                 <td>
                     <input type="checkbox" name="@nameof(Model.DeleteIds)" form="deleteForm" class="form-check-input" value="@post.Id">
                 </td>
-                <td  >
+                <td >
                     <div class="text-truncate line-clamp text-wrap" style="max-width: 400px;">
-                        <a asp-page="/Post/Details" asp-route-id="@post.Id">@post.Title</a> 
+                        <a asp-page="/Post/Details" asp-route-id="@post.Id">@post.Title</a>
                     </div>
                 </td>
                 <td>
@@ -39,9 +42,11 @@
                 @* <td>@post.RentCategory?.Name</td> *@
                 @* <td>@(post.IsNegotiatedPrice ? "Thỏa thuận" : Ultilities.FormatCurrency(post.Price))</td> *@
                 @* <td>@(post.Area) m<sub>2</sub></td> *@
-                <td>@(post.IsHidden? "Hiển thị":"Đã ẩn")</td>
+                @* <td>@(post.IsHidden? "Hiển thị":"Đã ẩn")</td> *@
                 <td>@(post.CreatedAt.ToString("dd/MM/yyyy"))</td>
-                <td>@(post.IsApproved)</td>
+                <td>
+                    @(post.IsApproved == null ? "Đang chờ duyệt" : (post.IsApproved.Value ? "Đã duyệt" : "Bị từ chối"))
+                </td>
                 <td>
                     <a asp-page="/Post/Update" asp-route-id="@post.Id" class="btn btn-dark text-white">Sửa</a>
                 </td>

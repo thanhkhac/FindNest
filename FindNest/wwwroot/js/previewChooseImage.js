@@ -10,20 +10,20 @@
             // Tạo ô input để lưu trữ tệp
             const fileInput = $('<input>').attr({
                 type: 'file',
-                name: inputFiles.name, // Đặt tên cho ô input để gửi tệp trong form
-                style: 'display: none;' // Ẩn ô input
+                name: inputFiles.name, 
+                style: 'display: none;' 
             });
 
             // Tạo một đối tượng File để gán vào ô input
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(file);
-            fileInput[0].files = dataTransfer.files; // Gán tệp vào ô input
+            fileInput[0].files = dataTransfer.files; 
 
-            // Tạo ô input hidden để lưu chỉ số
+            // Tạo ô input hidden để lưu index
             const indexInput = $('<input>').attr({
                 type: 'hidden',
-                name: indexInputName, // Tên để gửi chỉ số
-                value: '', // Giá trị sẽ được cập nhật sau
+                name: indexInputName, 
+                value: '', 
                 class: 'FileIndex'
             });
 
@@ -32,13 +32,13 @@
 
             // Thêm sự kiện xóa cho nút
             removeBtn.on('click', function () {
-                imgContainer.remove(); // Xóa hình ảnh và ô input
-                updateIndexInputs(); // Cập nhật lại chỉ số sau khi xóa
+                imgContainer.remove(); 
+                updateIndexInputs(); 
             });
 
             // Thêm các phần tử vào imgContainer
-            imgContainer.append(img).append(removeBtn).append(fileInput).append(indexInput); // Thêm cả ô input và ô input hidden vào imgContainer
-            $(displayTarget).append(imgContainer); // Thêm imgContainer vào displayTarget
+            imgContainer.append(img).append(removeBtn).append(fileInput).append(indexInput); 
+            $(displayTarget).append(imgContainer); 
 
             // Cập nhật chỉ số cho ô input hidden
             updateIndexInputs();
@@ -48,11 +48,10 @@
 
     // Kích hoạt khả năng kéo và thả
     $(displayTarget).sortable({
-        items: '.sortable-img', // Các phần tử có thể kéo
-        cursor: 'move', // Con trỏ khi kéo
-        placeholder: 'sortable-placeholder', // Placeholder khi kéo
+        items: '.sortable-img', 
+        cursor: 'move', 
+        placeholder: 'sortable-placeholder', 
         update: function (event, ui) {
-            // Cập nhật chỉ số cho các ô input hidden sau khi thay đổi thứ tự
             updateIndexInputs();
         }
     });
@@ -60,7 +59,6 @@
     // Hàm cập nhật chỉ số cho các ô input hidden
     function updateIndexInputs() {
         $(displayTarget).children().each(function () {
-            // Lấy chỉ số của phần tử hiện tại so với tất cả các phần tử con
             const index = $(this).index();
             console.log(indexInputName)
             console.log(index)

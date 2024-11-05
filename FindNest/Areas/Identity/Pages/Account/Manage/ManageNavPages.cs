@@ -23,7 +23,11 @@ namespace FindNest.Areas.Identity.Pages.Account.Manage
         public static string PersonalData => "PersonalData";
 
         public static string TwoFactorAuthentication => "TwoFactorAuthentication";
+        public static string UserPost => "UserPost";
+        public static string CreatePost => "CreatePost";
 
+        public static string UserPostClass(ViewContext viewContext) => PageNavClass(viewContext, UserPost);
+        public static string CreatePostClass(ViewContext viewContext) => PageNavClass(viewContext, CreatePost);
         public static string IndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, Index);
 
         public static string EmailNavClass(ViewContext viewContext) => PageNavClass(viewContext, Email);

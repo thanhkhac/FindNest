@@ -1,0 +1,159 @@
+﻿@page
+@using FindNest.Areas.Identity.Pages.Account.Manage
+@using FindNest.Utilities
+@model Waiting
+
+@{
+    Layout = "/Areas/Identity/Pages/Account/Manage/_Layout.cshtml";
+    ViewData["ActivePage"] = "AdminPostManagement";
+}
+
+<div>
+    <table class="table table-striped align-middle rounded-3 overflow-hidden">
+        <tr class="bg-danger text-white">
+            <th></th>
+            <th>Id</th>
+            <th>Tiêu đề</th>
+            <th>Khu vực</th>
+            @* <th>Loại phòng</th> *@
+            @* <th>Giá/Tháng</th> *@
+            @* <th>Diện tích</th> *@
+            @* <th>Ẩn</th> *@
+            <th>Ngày đăng</th>
+            <th colspan="3" class="text-center">Hành động</th>
+        </tr>
+        @foreach (var post in Model.RentPosts)
+        {
+            <tr>
+                <td>
+                    <input type="checkbox" name="@nameof(Model.Ids)" form="deleteOrProcessForm" class="form-check-input" value="@post.Id">
+                </td>
+                <td>
+                    @post.Id
+                </td>
+                <td >
+                    <div class="text-truncate line-clamp text-wrap" style="max-width: 400px;">
+                        <a asp-page="/Post/Details" asp-route-id="@post.Id">@post.Title</a>
+                    </div>
+                </td>
+                <td>
+                    <div class="text-truncate line-clamp text-wrap" style="max-width: 250px;">
+                        @post.RegionAddress
+                    </div>
+                </td>
+                @* <td>@post.RentCategory?.Name</td> *@
+                @* <td>@(post.IsNegotiatedPrice ? "Thỏa thuận" : Ultilities.FormatCurrency(post.Price))</td> *@
+                @* <td>@(post.Area) m<sub>2</sub></td> *@
+                @* <td>@(post.IsHidden ? "Hiển thị" : "Đã ẩn")</td> *@
+                <td>@(post.CreatedAt.ToString("dd/MM/yyyy"))</td>
+                @if (post.IsApproved == null)
+                {
+                    <td>
+                        <form method="post" asp-page-handler="deleteOrProcess">
+                            <input type="hidden" asp-for="Params.CurrentPage">
+                            <input type="hidden" name="@nameof(Model.Ids)" value="@post.Id">
+                            <button name="@nameof(Model.Action)" value="approve" class="btn-success btn"
+                                    onclick="confirmAction(event, 'Bạn có muốn duyệt bài viết này không')">
+                                Duyệt
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" asp-page-handler="deleteOrProcess">
+                            <input type="hidden" asp-for="Params.CurrentPage">
+                            <input type="hidden" name="@nameof(Model.Ids)" value="@post.Id">
+                            <button name="@nameof(Model.Action)" value="deny" class="btn-danger btn"
+                                    onclick="confirmAction(event, 'Bạn có muốn từ chối bài viết này không')">
+                                Từ chối
+                            </button>
+                        </form>
+                    </td>
+                }
+                else if ((bool)post.IsApproved)
+                {
+                    <td colspan="2" class="text-center">Đã duyệt</td>
+                }
+                else
+                {
+                    <td colspan="2" class="text-center">Đã từ chối</td>
+                }
+                <td>
+                    <form method="post" asp-page-handler="deleteOrProcess">
+                        <input type="hidden" asp-for="Params.CurrentPage">
+                        <input type="hidden" name="@nameof(Model.Ids)" value="@post.Id">
+                        <button name="@nameof(Model.Action)" value="delete" class="btn-danger btn"
+                                onclick="confirmAction(event, 'Bạn có muốn xóa bài viết này không')">
+                            Xóa
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+    <div class="d-flex gap-3">
+        <button form="deleteOrProcessForm" name="@nameof(Model.Action)" value="approve" class="btn-success btn">
+            Duyệt
+        </button>
+        <button form="deleteOrProcessForm" name="@nameof(Model.Action)" value="approveAll" class="btn-success btn">
+            Duyệt tất cả
+        </button>
+        <button form="deleteOrProcessForm" name="@nameof(Model.Action)" value="deny" class="btn-danger btn">
+            Từ chối
+        </button>
+        <button form="deleteOrProcessForm" name="@nameof(Model.Action)" value="delete" class="btn-danger btn">
+            Xóa
+        </button>
+    </div>
+    <form id="deleteOrProcessForm" method="post" asp-page-handler="deleteOrProcess">
+        <input type="hidden" asp-for="Params.CurrentPage">
+    </form>
+    <form method="get" id="paginationForm">
+        <partial name="Shared/_PaginationPartial" model="Model.PaginationPm"/>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Xác nhận hành động khi biểu mẫu deleteOrProcessForm được gửi
+        $('#deleteOrProcessForm').on('submit', function(event) {
+            const selectedIds = $('input[name="Ids"]:checked'); // Đếm số lượng bài viết được chọn
+            const action = $('button[name="Action"]:focus').val(); // Lấy hành động từ nút đang được nhấn
+
+            if (selectedIds.length === 0 && action!=='approveAll') {
+                alert("Vui lòng chọn ít nhất một bài viết.");
+                event.preventDefault(); // Ngăn không gửi biểu mẫu nếu không có bài viết nào được chọn
+                return;
+            }
+
+            // Tạo thông báo xác nhận tùy thuộc vào hành động
+            let confirmationMessage = "";
+            switch (action) {
+                case "approve":
+                    confirmationMessage = `Bạn có muốn duyệt ${selectedIds.length} bài viết này không?`;
+                    break;
+                case "deny":
+                    confirmationMessage = `Bạn có muốn từ chối ${selectedIds.length} bài viết này không?`;
+                    break;
+                case "delete":
+                    confirmationMessage = `Bạn có muốn xóa ${selectedIds.length} bài viết này không?`;
+                    break;
+                case "approveAll":
+                    confirmationMessage = `Bạn có muốn duyệt tất cả bài viết không?`;
+                    break;
+            }
+
+            // Hiển thị hộp thoại xác nhận
+            if (!confirm(confirmationMessage)) {
+                event.preventDefault(); // Ngăn không gửi biểu mẫu nếu người dùng chọn "Hủy"
+            }
+        });
+    });
+
+    function confirmAction(event, confirmationMessage) {
+        if (!confirm(confirmationMessage)) {
+            event.preventDefault();
+        }
+    }
+
+
+</script>

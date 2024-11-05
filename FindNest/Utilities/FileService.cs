@@ -15,14 +15,14 @@ namespace FindNest.Utilities
     {
         public async Task<List<string>> SaveImagesAsync(List<IFormFile> formFiles, string folder)
         {
-            var stopwatch = Stopwatch.StartNew(); // Bắt đầu đo thời gian
+            var stopwatch = Stopwatch.StartNew(); 
 
             var tasks = formFiles
                 .Where(file => file.Length > 0)
                 .Select(file => SaveImageAsync(file, folder)); 
             var listPaths = await Task.WhenAll(tasks); 
             stopwatch.Stop(); 
-            Console.WriteLine($"Thời gian chạy của SaveImagesAsync: {stopwatch.Elapsed.TotalSeconds} giây"); // Hiển thị thời gian
+            Console.WriteLine($"Thời gian chạy của SaveImagesAsync: {stopwatch.Elapsed.TotalSeconds} giây"); 
             return listPaths.Where(path => path != null).Select(path => path!).ToList(); 
         }
 

@@ -14,6 +14,10 @@ namespace FindNest.Params
         public long? MaxArea { get; set; }
         public string? Address { get; set; }
         public bool IsNegotiatedPrice { get; set; } = true;
+        
+        public bool? IsApproved { get; set; } = true;
+        
+        public bool IsWaiting { get; set; } = false;
         public bool IsPriceMinMaxFilter { get; set; } = true;
         [BindNever] 
         public string? UserId  { get; set; } 
