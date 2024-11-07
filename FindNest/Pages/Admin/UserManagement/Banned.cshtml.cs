@@ -11,13 +11,13 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace FindNest.Pages.Admin.UserManagement
 {
     [Authorize(Roles = RoleConst.Administrator)]
-    public class Index : PageModel
+    public class Banned : PageModel
     {
         private readonly IUserService _userService;
         private readonly IRentPostService _rentPostService;
         private readonly UserManager<Data.Models.User> _userManager;
 
-        public Index(UserManager<User> userManager, IUserService userService, IRentPostService rentPostService)
+        public Banned(UserManager<User> userManager, IUserService userService, IRentPostService rentPostService)
         {
             _userManager = userManager;
             _userService = userService;
@@ -43,8 +43,8 @@ namespace FindNest.Pages.Admin.UserManagement
 
         private void Load()
         {
+            Params.IsBanned = true;
             Users = _userService.SearchUser(Params, out int count).ToList();
-
             PaginationPm = new PaginationPm
             {
                 ParamName = nameof(Params) + "." + nameof(Params.CurrentPage),
@@ -82,6 +82,7 @@ namespace FindNest.Pages.Admin.UserManagement
             if (Action.Equals("ban")) { _userService.Ban(Ids); }
             if (Action.Equals("unBan")) { _userService.UnBan(Ids); }
             if (Action.Equals("deleteAllPost")) { _rentPostService.DeleteByUserId(Ids); }
+            
             Load();
             // return RedirectToPage(null, new { CurrentPage = Params.CurrentPage });
             return Page();

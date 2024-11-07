@@ -45,6 +45,8 @@ namespace FindNest.Data.Models
 
         public virtual ICollection<Media> Mediae { get; set; }
         
+        public ICollection<Like> Likes { get; set; }
+        
         
         [NotMapped]
         public string? RegionAddress { get; set; }

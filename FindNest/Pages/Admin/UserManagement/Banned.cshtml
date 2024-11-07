@@ -3,7 +3,7 @@
 @using FindNest.Constants
 @using FindNest.Utilities
 @inject UserManager<User> UserManager
-@model Index
+@model Banned
 
 @{
     Layout = "/Areas/Identity/Pages/Account/Manage/_Layout.cshtml";
@@ -67,62 +67,62 @@
                     @user.PhoneNumber
                 </td>
                 <td>
-                    @* <form method="post" asp-page-handler="deleteOrProcess"> *@
-                    @*     <input type="hidden" asp-for="Params.CurrentPage"> *@
-                    @*     <input type="hidden" name="@nameof(Model.Ids)" value="@user.Id"> *@
-                    @*     <button name="@nameof(Model.Action)" value="deleteAllPost" class="btn-danger btn" *@
-                    @*             onclick="confirmAction(event, 'Bạn có muốn xóa tất cả bài viết của người dùng này không')"> *@
-                    @*         Xóa tất cả bài viết *@
-                    @*     </button> *@
-                    @* </form> *@
+                    <form method="post" asp-page-handler="deleteOrProcess">
+                        <input type="hidden" asp-for="Params.CurrentPage">
+                        <input type="hidden" asp-for="Params.CurrentPage">
+                        <input type="hidden" class="form-control"  asp-for="Params.FullName">
+                        <input type="hidden" class="form-control"  asp-for="Params.ContactPhoneNumber">
+                        <input type="hidden" class="form-control"  asp-for="Params.Email">
+                        <input type="hidden" name="@nameof(Model.Ids)" value="@user.Id">
+                        <button name="@nameof(Model.Action)" value="deleteAllPost" class="btn-danger btn"
+                                onclick="confirmAction(event, 'Bạn có muốn xóa tất cả bài viết của người dùng này không')">
+                            Xóa tất cả bài viết
+                        </button>
+                    </form>
                 </td>
                 @if (currentUser != null && !user.Id.Equals(currentUser.Id))
                 {
-                    @* <td> *@
-                    @*     <form method="post" asp-page-handler="deleteOrProcess"> *@
-                    @*         <input type="hidden" asp-for="Params.CurrentPage"> *@
-                    @*         <input type="hidden" name="@nameof(Model.Ids)" value="@user.Id"> *@
-                    @*         <button name="@nameof(Model.Action)" value="delete" class="btn-danger btn" *@
-                    @*                 onclick="confirmAction(event, 'Bạn có muốn xóa người dùng này không')"> *@
-                    @*             Xóa *@
-                    @*         </button> *@
-                    @*     </form> *@
-                    @* </td> *@
+                    <td>
+                        <form method="post" asp-page-handler="deleteOrProcess">
+                            <input type="hidden" asp-for="Params.CurrentPage">
+                            <input type="hidden" asp-for="Params.CurrentPage">
+                            <input type="hidden" class="form-control"  asp-for="Params.FullName">
+                            <input type="hidden" class="form-control"  asp-for="Params.ContactPhoneNumber">
+                            <input type="hidden" class="form-control"  asp-for="Params.Email">
+                            <input type="hidden" name="@nameof(Model.Ids)" value="@user.Id">
+                            <button name="@nameof(Model.Action)" value="delete" class="btn-danger btn"
+                                    onclick="confirmAction(event, 'Bạn có muốn xóa người dùng này không')">
+                                Xóa
+                            </button>
+                        </form>
+                    </td>
                     bool isAdmin = await UserManager.IsInRoleAsync(user, RoleConst.Administrator);
                     if (isAdmin)
                     {
-                        <td>
-                            <form method="post" asp-page-handler="deleteOrProcess">
-                                <input type="hidden" asp-for="Params.CurrentPage">
-                                <input type="hidden" asp-for="Params.CurrentPage">
-                                <input type="hidden" class="form-control"  asp-for="Params.FullName">
-                                <input type="hidden" class="form-control"  asp-for="Params.ContactPhoneNumber">
-                                <input type="hidden" class="form-control"  asp-for="Params.Email">
-                                <input type="hidden" name="@nameof(Model.Ids)" value="@user.Id">
-                                <button name="@nameof(Model.Action)" value="disableAdmin" class="btn-primary btn"
-                                        onclick="confirmAction(event, 'Bạn có muốn đặt người dùng này làm quản trị viên không')">
-                                    Gỡ quyền quản trị viên
-                                </button>
-                            </form>
-                        </td>
+                        @* <td> *@
+                        @*     <form method="post" asp-page-handler="deleteOrProcess"> *@
+                        @*         <input type="hidden" asp-for="Params.CurrentPage"> *@
+                        @*         <input type="hidden" name="@nameof(Model.Ids)" value="@user.Id"> *@
+                        @*         <button name="@nameof(Model.Action)" value="disableAdmin" class="btn-primary btn" *@
+                        @*                 onclick="confirmAction(event, 'Bạn có muốn đặt người dùng này làm quản trị viên không')"> *@
+                        @*             Gỡ quyền quản trị viên *@
+                        @*         </button> *@
+                        @*     </form> *@
+                        @* </td> *@
                     }else
                     {
-                        <td>
-                            <form method="post" asp-page-handler="deleteOrProcess">
-                                <input type="hidden" asp-for="Params.CurrentPage">
-                                <input type="hidden" asp-for="Params.CurrentPage">
-                                <input type="hidden" class="form-control"  asp-for="Params.FullName">
-                                <input type="hidden" class="form-control"  asp-for="Params.ContactPhoneNumber">
-                                <input type="hidden" class="form-control"  asp-for="Params.Email">
-                                <input type="hidden" name="@nameof(Model.Ids)" value="@user.Id">
-                                <button name="@nameof(Model.Action)" value="setAdmin" class="btn-primary btn"
-                                        onclick="confirmAction(event, 'Bạn có muốn đặt người dùng này làm quản trị viên không')">
-                                    Ủy quyền quản trị viên
-                                </button>
-                            </form>
-                        </td>
+                        @* <td> *@
+                        @*     <form method="post" asp-page-handler="deleteOrProcess"> *@
+                        @*         <input type="hidden" asp-for="Params.CurrentPage"> *@
+                        @*         <input type="hidden" name="@nameof(Model.Ids)" value="@user.Id"> *@
+                        @*         <button name="@nameof(Model.Action)" value="setAdmin" class="btn-primary btn" *@
+                        @*                 onclick="confirmAction(event, 'Bạn có muốn đặt người dùng này làm quản trị viên không')"> *@
+                        @*             Ủy quyền quản trị viên *@
+                        @*         </button> *@
+                        @*     </form> *@
+                        @* </td> *@
                     }
-                    if (user.LockoutEnd <= DateTime.Now)
+                    if (!user.IsBanned )
                     {
                         <td>
                             <form method="post" asp-page-handler="deleteOrProcess">
@@ -172,6 +172,7 @@
         </button>
     </div>
     <form id="deleteOrProcessForm" method="post" asp-page-handler="deleteOrProcess">
+        <input type="hidden" asp-for="Params.CurrentPage">
         <input type="hidden" asp-for="Params.CurrentPage">
         <input type="hidden" class="form-control"  asp-for="Params.FullName">
         <input type="hidden" class="form-control"  asp-for="Params.ContactPhoneNumber">

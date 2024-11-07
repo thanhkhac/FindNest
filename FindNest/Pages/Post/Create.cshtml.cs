@@ -134,8 +134,18 @@ namespace FindNest.Pages.Post
             if (!ModelState.IsValid) { return Page(); }
             var formFiles = RentPost.Images;
             var user = await _userManager.GetUserAsync(User);
+            if (formFiles.Count == 0)
+            {
+                ModelState.AddModelError("Images", "Vui lòng chọn ảnh");
+                return Page();
+            }
             if (formFiles != null)
             {
+                if (formFiles.Count >10)
+                {
+                    ModelState.AddModelError("Images", "Bạn chỉ có thể đăng tối đa 10 ảnh");
+                    return Page();
+                }
                 List<string> listPaths = await _fileService.SaveImagesAsync(formFiles, FolderConst.UserUploadFolder);
                 var mediaList = listPaths.Select((x, index) => new Media
                 {
@@ -183,14 +193,15 @@ namespace FindNest.Pages.Post
                     Mediae = mediaList,
                     RegionAddress = RentPost.Address
                 };
-                if (newRentPost.Thumbnail == null && listPaths.Count > 0) { newRentPost.Thumbnail = listPaths.First(); }
+                newRentPost.Thumbnail = listPaths.First();
+                // if (newRentPost.Thumbnail == null && listPaths.Count > 0) { newRentPost.Thumbnail = listPaths.First(); }
 
                 _context.RentPosts.Add(newRentPost);
                 await _context.SaveChangesAsync();
 
                 return RedirectToPage("Details", new { id = newRentPost.Id });
             }
-            return null;
+            return Page();
         }
     }
 }

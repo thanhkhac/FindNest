@@ -100,12 +100,37 @@
             </div>
         </div>
     </div>
-    <div class="col-2">
+    <div class="col-3">
+        <div class="border border-1 w-100 pt-5 rounded-3" style="height: 400px">
+            <div class="text-center">
+                <div class="align-content-center">
+                    <img class="rounded-circle" style="height: 100px; width: 100px" src="https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg" alt="Avatar">
+                </div>
+            </div>
+            <div>
+                <h3 class="text-center">@Model.RentPost?.CreatedUser?.FullName</h3>
+            </div>
+            <div class="text-center">
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                <button class=" btn border">
+                    Liên hệ: @Model.RentPost?.CreatedUser?.ContactPhoneNumber
+                </button>
+                }
+                else
+                {
+                <a asp-area="Identity" class="btn border" asp-page="/Account/Login">
+                    <span>Liên hệ:</span>
+                    @if (Model.RentPost.CreatedUser != null && Model.RentPost.CreatedUser.ContactPhoneNumber != null) { @Ultilities.HidePhoneNumber(Model.RentPost.CreatedUser.ContactPhoneNumber) }
+                </a>
+                }
+            </div>
+        </div>
     </div>
     <div class="col-8 m-0 p-0">
         <h3>Trong khu vực</h3>
         <partial name="Shared/_RentPostListPartial" model="Model.RentPostsInRegion"/>
     </div>
-    <div class="col-2">
+    <div class="col-3">
     </div>
 </div>

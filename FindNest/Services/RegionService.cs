@@ -45,7 +45,6 @@ namespace FindNest.Repositories
             var regions = _context.Regions
                 .FromSqlRaw("EXEC GetAddress @Id", IdParam)
                 .ToList();
-            // Console.WriteLine(regions.Count);
             return string.Join(", ", regions.Select(x => x.FullName));
         }
         

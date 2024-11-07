@@ -132,9 +132,7 @@ namespace FindNest.Repositories
                 //UserId
                 if (searchParams.UserId != null) { query = query.Where(x => x.CreatedBy != null && x.CreatedBy.Equals(searchParams.UserId)); }
             }
-            totalCount = query.Count();
-            Console.WriteLine(totalCount);
-
+            totalCount = query.Select(x=>x.Id).Count();
 
             // Pagination
             var rentPosts = query.Skip((searchParams!.CurrentPage - 1) * searchParams.PageSize)
@@ -152,41 +150,42 @@ namespace FindNest.Repositories
 
         public void Delete(List<int> ids)
         {
-            var deletePosts = _context.RentPosts.Where(x => ids.Contains(x.Id));
-            var deleteRentPostRooms = _context.RentPostRooms.Where(x => ids.Contains(x.RentPostId));
-            var deleteMedias = _context.Media.Where(x => ids.Contains(x.RentPostId)).ToList();
-            var deleteMediaPaths = deleteMedias.Select(x => x.Path).ToList();
-            var deleteLikes = _context.Likes.Where(x=>ids.Contains(x.RentPostId)).ToList();
 
-            _context.Media.RemoveRange(deleteMedias);
-            _context.RentPostRooms.RemoveRange(deleteRentPostRooms);
-            _context.RentPosts.RemoveRange(deletePosts);
-            _context.Likes.RemoveRange(deleteLikes);
+            // _context.RentPostRooms
+            //     .Where(x => ids.Contains(x.RentPostId))
+            //     .ExecuteDelete(); 
+
+            var deleteMedias = _context.Media
+                .Where(x => ids.Contains(x.RentPostId))
+                .ToList(); 
+
+            var deleteMediaPaths = deleteMedias.Select(x => x.Path).ToList();
+
+            // _context.Likes
+            //     .Where(x => ids.Contains(x.RentPostId))
+            //     .ExecuteDelete();
+
+            _context.RentPosts
+                .Where(x => ids.Contains(x.Id))
+                .ExecuteDelete(); 
+
             _context.SaveChanges();
 
             _fileService.DeleteFileAsync(deleteMediaPaths);
         }
         public void DeleteByUserId(List<string> ids)
         {
-            var deletePostCount = _context.RentPosts
-                .Where(r => ids.Contains(r.CreatedBy))
-                .ExecuteDelete(); 
+            var deletePostIds = _context.RentPosts
+                .Where(r => ids.Contains(r.CreatedBy)).Select(x=>x.Id).ToList();
+                Delete(deletePostIds); 
         }
 
         public void Delete(List<int> ids, string userId)
         {
-            var deletePosts = _context.RentPosts.Where(x => x.CreatedBy != null && ids.Contains(x.Id) && x.CreatedBy.Equals(userId));
-            var deleteRentPostRooms = _context.RentPostRooms.Where(x => ids.Contains(x.RentPostId));
-            var deleteMedias = _context.Media.Where(x => ids.Contains(x.RentPostId)).ToList();
-            var deleteMediaPaths = deleteMedias.Select(x => x.Path).ToList();
-
-            _context.Media.RemoveRange(deleteMedias);
-            _context.RentPostRooms.RemoveRange(deleteRentPostRooms);
-            _context.RentPosts.RemoveRange(deletePosts);
-            _context.SaveChanges();
-
-            _fileService.DeleteFileAsync(deleteMediaPaths);
+            var deletePostIds = _context.RentPosts.Where(x => x.CreatedBy != null && ids.Contains(x.Id) && x.CreatedBy.Equals(userId)).Select(x=>x.Id).ToList();
+            Delete(deletePostIds); 
         }
+        
         public void ApproveDeny(List<int> ids, bool value)
         {
             var posts = _context.RentPosts.Where(x => ids.Contains(x.Id) && x.IsApproved == null)
@@ -229,6 +228,7 @@ namespace FindNest.Repositories
                 .Include(post => post.RentPostRooms)
                 .Include(post => post.RentCategory)
                 .Include(post => post.Region)
+                .Include(post => post.CreatedUser)
                 .FirstOrDefault(post => post.Id == id);
             if (rentPost == null) { return null; }
             rentPost.RegionAddress = rentPost.RegionId.HasValue

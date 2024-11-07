@@ -50,7 +50,7 @@ namespace FindNest.Pages.Admin.Post
                 PageCount = (int)Math.Ceiling((double)count / Params.PageSize),
                 CurrentPage = Params.CurrentPage,
                 TotalCount = count,
-                FormName = "paginationForm"
+                FormName = "searchForm"
             };
         }
 

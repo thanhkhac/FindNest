@@ -37,10 +37,41 @@ namespace FindNest.Data
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Like> Likes { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            
+            // Configure RentPost -> RentPostRooms relationship with Cascade delete
+
+            // RentPost và RentPostRoom có quan hệ 1-nhiều
+            modelBuilder.Entity<RentPost>()
+                .HasMany(rp => rp.RentPostRooms) 
+                .WithOne(rpr => rpr.RentPost) 
+                .HasForeignKey(rpr => rpr.RentPostId) 
+                .OnDelete(DeleteBehavior.Cascade); 
+
+   
+            modelBuilder.Entity<RentPost>()
+                .HasMany(rp => rp.Mediae) 
+                .WithOne(m => m.RentPost) 
+                .HasForeignKey(m => m.RentPostId) 
+                .OnDelete(DeleteBehavior.Cascade); 
+
+    
+            modelBuilder.Entity<RentPost>()
+                .HasMany(rp => rp.Likes) 
+                .WithOne(l => l.RentPost) 
+                .HasForeignKey(l => l.RentPostId) 
+                .OnDelete(DeleteBehavior.Cascade); 
+
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Likes) 
+                .WithOne(l => l.User) 
+                .HasForeignKey(l => l.UserId) 
+                .OnDelete(DeleteBehavior.Cascade); 
+                
+
 
             modelBuilder.Entity<RentCategory>().HasData(
                 new RentCategory { Id = 1, Name = "Phòng trọ" },
@@ -48,21 +79,25 @@ namespace FindNest.Data
                 new RentCategory { Id = 3, Name = "Nguyên Căn" }
             );
 
+            // Seed IdentityRole data
             modelBuilder.Entity<IdentityRole>().HasData(
                 new IdentityRole { Id = "Admin", Name = "Admin", NormalizedName = "ADMIN" },
                 new IdentityRole { Id = "User", Name = "User", NormalizedName = "USER" }
             );
 
+            // Seed Room data
             modelBuilder.Entity<Room>().HasData(
                 new Room
                 {
                     Id = RoomConst.Bedroom,
                     Name = "Phòng ngủ"
-                }, new Room
+                },
+                new Room
                 {
                     Id = RoomConst.Livingroom,
                     Name = "Phòng khách"
-                }, new Room
+                },
+                new Room
                 {
                     Id = RoomConst.Bathroom,
                     Name = "Nhà vệ sinh"

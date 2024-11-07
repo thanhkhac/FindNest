@@ -62,6 +62,16 @@
                 return "Vừa xong";
             }
         }
+        
+        public static string HidePhoneNumber(string phoneNumber)
+        {
+            if (string.IsNullOrEmpty(phoneNumber) || phoneNumber.Length < 3)
+            {
+                return phoneNumber;
+            }
+    
+            return phoneNumber.Substring(0, 3) + new string('*', phoneNumber.Length - 3);
+        }
 
     }
 }

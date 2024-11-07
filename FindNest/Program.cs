@@ -56,6 +56,12 @@ namespace FindNest
                 }).AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<FindNestDbContext>()
                 .AddErrorDescriber<CustomIdentityErrorDescriber>();
+                
+            builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+            {
+                options.ValidationInterval = TimeSpan.Zero;   
+            });
+            
             builder.Services.AddRazorPages();
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
             builder.Services.AddDirectoryBrowser();

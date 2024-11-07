@@ -11,7 +11,7 @@
 
 
 <div class="row justify-content-center">
-    <h1 class="text-center pt-2">Đăng tin mới</h1>
+    <h1 class="text-center pt-2">Chỉnh sửa bài đăng</h1>
     <hr/>
     <div class="col-md-10 border p-4 rounded-3 ">
         <form method="post" enctype="multipart/form-data">
@@ -191,6 +191,13 @@
                         }
                     </div>
                 </div>
+                @if (ViewData.ModelState["Images"] != null && ViewData.ModelState["Images"].Errors.Count > 0)
+                {
+                foreach (var error in ViewData.ModelState["Images"].Errors)
+                {
+                <div class="text-danger">@error.ErrorMessage</div>
+                }
+                }
                 <div class="">
                     <label for="imageUploadInput" class="btn rounded-3 border">
                         Thêm ảnh

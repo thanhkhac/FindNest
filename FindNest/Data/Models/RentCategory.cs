@@ -9,5 +9,7 @@ namespace FindNest.Data.Models
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
         public string? Name { get; set; }
+        
+
     }
 }

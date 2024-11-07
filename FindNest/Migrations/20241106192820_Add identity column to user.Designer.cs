@@ -4,16 +4,19 @@ using FindNest.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace FindNest.Data.Migrations
+namespace FindNest.Migrations
 {
     [DbContext(typeof(FindNestDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241106192820_Add identity column to user")]
+    partial class Addidentitycolumntouser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -343,6 +346,12 @@ namespace FindNest.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<int>("SecondaryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SecondaryId"));
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -550,7 +559,7 @@ namespace FindNest.Data.Migrations
             modelBuilder.Entity("FindNest.Data.Models.RentPost", b =>
                 {
                     b.HasOne("FindNest.Data.Models.User", "CreatedUser")
-                        .WithMany("RentPost")
+                        .WithMany()
                         .HasForeignKey("CreatedBy");
 
                     b.HasOne("FindNest.Data.Models.Region", "Region")
@@ -655,8 +664,6 @@ namespace FindNest.Data.Migrations
             modelBuilder.Entity("FindNest.Data.Models.User", b =>
                 {
                     b.Navigation("Likes");
-
-                    b.Navigation("RentPost");
                 });
 #pragma warning restore 612, 618
         }

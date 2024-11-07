@@ -9,7 +9,7 @@ namespace FindNest.Repositories
 {
     public interface IUserService
     {
-        IEnumerable<User> SearchUser(SearchParams searchParams, out int totalCount);
+        IEnumerable<User> SearchUser(UserSearchParam searchParams, out int totalCount);
         void DeleteUsers(List<string> ids);
         void SetAdmin(List<string> ids);
         void DisableAdmin(List<string> ids);
@@ -30,15 +30,16 @@ namespace FindNest.Repositories
             _rentPostService = rentPostService;
         }
 
-        public IEnumerable<User> SearchUser(SearchParams searchParams, out int totalCount)
+        public IEnumerable<User> SearchUser(UserSearchParam searchParams, out int totalCount)
         {
             var query = _context.Users.AsQueryable();
+            query = query.Where(x=>x.IsBanned == searchParams.IsBanned);
 
+            if (!string.IsNullOrEmpty(searchParams.Email)) { query = query.Where(u => u.Email.Contains(searchParams.Email)); }
+            if (!string.IsNullOrEmpty(searchParams.UserId)) { query = query.Where(u => u.Id.Equals(searchParams.UserId)); }
+            if (!string.IsNullOrEmpty(searchParams.FullName)) { query = query.Where(u => u.FullName.Contains(searchParams.FullName)); }
 
-            if (!string.IsNullOrEmpty(searchParams.TextSearch)) { query = query.Where(u => u.FullName.Contains(searchParams.TextSearch)); }
-
-
-            totalCount = query.Count();
+            totalCount = query.Select(x=>x.Id).Count();
 
 
             query = query.Skip((searchParams.CurrentPage - 1) * searchParams.PageSize)
@@ -109,12 +110,15 @@ namespace FindNest.Repositories
             var userUpdateTask = _context.Users
                 .Where(x => ids.Contains(x.Id))
                 .ExecuteUpdate(x => x.SetProperty(b => b.LockoutEnabled, b => true)
-                    .SetProperty(b => b.LockoutEnd, b => DateTime.UtcNow.AddYears(100)));
+                    .SetProperty(b => b.LockoutEnd, b => DateTime.UtcNow.AddYears(100))
+                    .SetProperty(b => b.SecurityStamp, b => Guid.NewGuid().ToString())
+                    .SetProperty(b => b.IsBanned, b => true)
+                    );
             var deletePostIds = _context.RentPosts
                                           .Where(x => ids.Contains(x.CreatedBy))
                                           .Select(x => x.Id)
                                           .ToList();
-            _rentPostService.DeleteByUserId(ids);    
+            // _rentPostService.DeleteByUserId(ids);    
         }
 
         public void UnBan(List<string> ids)
@@ -122,7 +126,9 @@ namespace FindNest.Repositories
             var userUpdateTask = _context.Users
                 .Where(x => ids.Contains(x.Id))
                 .ExecuteUpdate(x => x
-                    .SetProperty(b => b.LockoutEnd, b => DateTime.UtcNow.AddYears(-1)));
+                    .SetProperty(b => b.LockoutEnd, b => DateTime.UtcNow.AddYears(-1))
+                    .SetProperty(b => b.IsBanned, b => false)
+                    );
         }
 
 

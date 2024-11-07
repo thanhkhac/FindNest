@@ -182,6 +182,13 @@
                     <div style="height: 200px" id="imageUploaded" class=" rounded-3 w-100 d-flex gap-2 overflow-scroll ">
                     </div>
                 </div>
+                @if (ViewData.ModelState["Images"] != null && ViewData.ModelState["Images"].Errors.Count > 0)
+                {
+                    foreach (var error in ViewData.ModelState["Images"].Errors)
+                    {
+                        <div class="text-danger">@error.ErrorMessage</div>
+                    }
+                }
                 <div class="">
                     <label for="imageUploadInput" class="btn rounded-3 border">
                         Thêm ảnh

@@ -153,8 +153,19 @@ namespace FindNest.Pages.Post
             if (!ModelState.IsValid) { return Page(); }
             var formFiles = UpdateInput.NewImages;
             var user = await _userManager.GetUserAsync(User);
-
+            if (formFiles.Count + UpdateInput.OldImagePaths.Count == 0)
+            {
+                ModelState.AddModelError("Images", "Vui lòng chọn ảnh");
+                return Page();
+            }
             //Ảnh mới
+            if (formFiles.Count + UpdateInput.OldImagePaths.Count > 10)
+            {
+                ModelState.AddModelError("Images", "Bạn chỉ có thể đăng tối đa 10 ảnh");
+                // ModelState.AddModelError("Images", formFiles.Count.ToString());
+                // ModelState.AddModelError("Images", UpdateInput.OldImagePaths.Count.ToString());
+                return Page();
+            }
             List<string> listPaths = await _fileService.SaveImagesAsync(formFiles, FolderConst.UserUploadFolder);
             var mediaList = listPaths.Select((x, index) => new Media
             {
@@ -212,7 +223,7 @@ namespace FindNest.Pages.Post
             oldRentPost.Mediae.AddRange(mediaList);
 
             if (oldRentPost.Thumbnail == null && listPaths.Count > 0) { oldRentPost.Thumbnail = listPaths.First(); }
-
+            oldRentPost.Thumbnail = oldRentPost.Mediae.First().Path;
             _context.RentPosts.Update(oldRentPost);
             await _context.SaveChangesAsync();
             await _fileService.DeleteFileAsync(deleteFilePaths);
