@@ -35,9 +35,10 @@ namespace FindNest.Repositories
             var query = _context.Users.AsQueryable();
             query = query.Where(x=>x.IsBanned == searchParams.IsBanned);
 
-            if (!string.IsNullOrEmpty(searchParams.Email)) { query = query.Where(u => u.Email.Contains(searchParams.Email)); }
+            if (!string.IsNullOrEmpty(searchParams.Email)) { query = query.Where(u => u.Email.Contains(searchParams.Email.Trim())); }
             if (!string.IsNullOrEmpty(searchParams.UserId)) { query = query.Where(u => u.Id.Equals(searchParams.UserId)); }
-            if (!string.IsNullOrEmpty(searchParams.FullName)) { query = query.Where(u => u.FullName.Contains(searchParams.FullName)); }
+            if (!string.IsNullOrEmpty(searchParams.FullName)) { query = query.Where(u => u.FullName.Contains(searchParams.FullName.Trim())); }
+            if (!string.IsNullOrEmpty(searchParams.ContactPhoneNumber)) { query = query.Where(u => u.ContactPhoneNumber.Contains(searchParams.ContactPhoneNumber.Trim())); }
 
             totalCount = query.Select(x=>x.Id).Count();
 
