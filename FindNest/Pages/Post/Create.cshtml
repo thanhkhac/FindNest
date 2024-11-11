@@ -13,7 +13,7 @@
 
 
 <div class="row justify-content-center">
-    <div class="col-md-10 border p-4 rounded-3 ">
+    <div class="col-md-10 border p-4 rounded-3 shadow">
         <h1 class="text-center pt-2 bg-danger rounded-3 text-white py-2">Đăng tin mới</h1>
         <form method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -40,6 +40,7 @@
                     <select asp-for="RentPost.RentCategoryId" class="form-control form-select @inputStyle" asp-items="ViewBag.RentCategoryId"></select>
                 </div>
             </div>
+            @* Bắt đầu ô chọn khu vực *@
             <div>
                 <div class="mt-3">
                     <label class="@labelStyle" for="">Tỉnh/Thành</label>
@@ -98,6 +99,15 @@
                     <span asp-validation-for="RentPost.RegionId" class="text-danger"></span>
 
                 </div>
+            </div>
+            <div>
+                <div id="map" style="height: 400px; width: 100%; margin-top: 20px;"></div>
+            </div>
+            <div>
+                @* <label>Vĩ độ:</label> *@
+                <input type="hidden" asp-for="@Model.RentPost.Latitude" id="latitudeInput" readonly>
+                @* <label>Kinh độ:</label> *@
+                <input type="hidden" asp-for="@Model.RentPost.Longitude" id="longitudeInput" readonly>
             </div>
             <div class="form-group mt-3">
                 <label asp-for="RentPost.Address" class="@labelStyle"></label>

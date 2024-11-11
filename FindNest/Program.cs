@@ -1,3 +1,4 @@
+using System.Globalization;
 using FindNest.Config;
 using FindNest.Data;
 using FindNest.Data.Models;
@@ -16,7 +17,9 @@ namespace FindNest
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            var cultureInfo = new CultureInfo("en-US"); 
+            CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+            CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
             //Cấu hình dung lượng tối đa của request
             builder.WebHost.ConfigureKestrel(serverOptions =>
             {

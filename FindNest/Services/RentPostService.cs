@@ -56,6 +56,7 @@ namespace FindNest.Repositories
                 .Where(x => x.UserId.Equals(searchParams.UserId))
                 .Select(x => x.RentPost);
 
+            // TotalCount = query.Select(x=>x.Id).Count();
             TotalCount = query.Count();
 
             var rentPosts = query.Skip((searchParams.CurrentPage - 1) * searchParams.PageSize)
@@ -132,7 +133,8 @@ namespace FindNest.Repositories
                 //UserId
                 if (searchParams.UserId != null) { query = query.Where(x => x.CreatedBy != null && x.CreatedBy.Equals(searchParams.UserId)); }
             }
-            totalCount = query.Select(x=>x.Id).Count();
+            totalCount = query.Count();
+            //totalCount = query.Select(x=>x.Id).Count();
 
             // Pagination
             var rentPosts = query.Skip((searchParams!.CurrentPage - 1) * searchParams.PageSize)

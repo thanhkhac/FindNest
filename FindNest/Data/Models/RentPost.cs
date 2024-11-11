@@ -35,6 +35,10 @@ namespace FindNest.Data.Models
         
         public string? Description { get; set; }
         
+        public double? Latitude { get; set; } //Vĩ độ
+        
+        public double? Longitude { get; set; } //Kinh độ
+        
         public bool IsHidden { get; set; }
         
         public bool? IsApproved { get; set; }

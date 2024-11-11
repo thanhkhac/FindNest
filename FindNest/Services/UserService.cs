@@ -40,7 +40,8 @@ namespace FindNest.Repositories
             if (!string.IsNullOrEmpty(searchParams.FullName)) { query = query.Where(u => u.FullName.Contains(searchParams.FullName.Trim())); }
             if (!string.IsNullOrEmpty(searchParams.ContactPhoneNumber)) { query = query.Where(u => u.ContactPhoneNumber.Contains(searchParams.ContactPhoneNumber.Trim())); }
 
-            totalCount = query.Select(x=>x.Id).Count();
+            totalCount = query.Count();
+            // totalCount = query.Select(x=>x.Id).Count();
 
 
             query = query.Skip((searchParams.CurrentPage - 1) * searchParams.PageSize)

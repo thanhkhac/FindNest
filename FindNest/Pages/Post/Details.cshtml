@@ -98,6 +98,9 @@
                     </tr>
                 </table>
             </div>
+            <div class="mt-4">
+                <div id="map" style="height: 400px; width: 100%;"></div>
+            </div>
         </div>
     </div>
     <div class="col-3">
@@ -113,16 +116,16 @@
             <div class="text-center">
                 @if (User.Identity != null && User.Identity.IsAuthenticated)
                 {
-                <button class=" btn border">
-                    Liên hệ: @Model.RentPost?.CreatedUser?.ContactPhoneNumber
-                </button>
+                    <button class=" btn border">
+                        Liên hệ: @Model.RentPost?.CreatedUser?.ContactPhoneNumber
+                    </button>
                 }
                 else
                 {
-                <a asp-area="Identity" class="btn border" asp-page="/Account/Login">
-                    <span>Liên hệ:</span>
-                    @if (Model.RentPost.CreatedUser != null && Model.RentPost.CreatedUser.ContactPhoneNumber != null) { @Ultilities.HidePhoneNumber(Model.RentPost.CreatedUser.ContactPhoneNumber) }
-                </a>
+                    <a asp-area="Identity" class="btn border" asp-page="/Account/Login">
+                        <span>Liên hệ:</span>
+                        @if (Model.RentPost.CreatedUser != null && Model.RentPost.CreatedUser.ContactPhoneNumber != null) { @Ultilities.HidePhoneNumber(Model.RentPost.CreatedUser.ContactPhoneNumber) }
+                    </a>
                 }
             </div>
         </div>
@@ -134,3 +137,26 @@
     <div class="col-3">
     </div>
 </div>
+
+@section Scripts
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var latitude = parseFloat("@Model.RentPost.Latitude ?? 16.047079".replace(',', '.'));
+            var longitude = parseFloat("@Model.RentPost.Longitude ?? 108.206230".replace(',', '.'));
+            
+            var map = L.map('map').setView([latitude, longitude], 13); // Khởi tạo bản đồ với vị trí trung tâm
+
+            // Thêm lớp Tile Layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Thêm Marker vào bản đồ tại vị trí bài đăng
+            L.marker([latitude, longitude]).addTo(map)
+                .bindPopup('<b>@Model.RentPost.Title</b><br/>@Model.RentPost.Address')
+                .openPopup();
+        });
+    </script>
+}

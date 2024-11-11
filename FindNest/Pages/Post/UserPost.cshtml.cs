@@ -40,6 +40,7 @@ namespace FindNest.Pages.Post
         {
             var userId = _userManager.GetUserId(User);
             Params.UserId = userId;
+            Params.IsApproved = null;
             RentPosts = _rentPostService.Search(Params, out int count).ToList();
             
             PaginationPm = new PaginationPm

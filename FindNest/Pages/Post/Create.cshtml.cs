@@ -74,6 +74,10 @@ namespace FindNest.Pages.Post
         [MaxLength(10_000)]
         [DisplayName("Mô tả")]
         public string? Description { get; set; }
+        
+        public double? Latitude { get; set; } = 21.0283334; //Vĩ độ
+        
+        public double? Longitude { get; set; } = 105.854041; //Kinh độ
     }
 
     [Authorize]
@@ -191,7 +195,10 @@ namespace FindNest.Pages.Post
                     IsHidden = false,
                     RentPostRooms = postRooms,
                     Mediae = mediaList,
-                    RegionAddress = RentPost.Address
+                    RegionAddress = RentPost.Address,
+                    Latitude = RentPost.Latitude,
+                    Longitude = RentPost.Longitude,
+                    Description = RentPost.Description
                 };
                 newRentPost.Thumbnail = listPaths.First();
                 // if (newRentPost.Thumbnail == null && listPaths.Count > 0) { newRentPost.Thumbnail = listPaths.First(); }
