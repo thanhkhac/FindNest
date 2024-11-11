@@ -28,7 +28,6 @@ namespace FindNest.Data
         {
         }
 
-        public DbSet<ReceivedRequest> Requests { get; set; }
         public DbSet<Region> Regions { get; set; }
         public DbSet<Media> Media { get; set; }
         public DbSet<RentPost> RentPosts { get; set; }

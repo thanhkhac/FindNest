@@ -27,4 +27,10 @@
     <Folder Include="ViewModels\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Request\Create.cshtml" />
+    <_ContentIncludedByDefault Remove="Pages\Request\Index.cshtml" />
+    <_ContentIncludedByDefault Remove="Pages\Request\Update.cshtml" />
+  </ItemGroup>
+
 </Project>
